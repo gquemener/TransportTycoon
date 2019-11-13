@@ -1,0 +1,27 @@
+{
+    "name": "gquemener/transport-tycoon-ex1",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Gildas Quéméner",
+            "email": "gildas.quemener@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "config": {
+        "bin-dir": "bin/"
+    },
+    "require": {
+        "ramsey/uuid": "^3.8",
+        "symfony/console": "^4.3"
+    },
+    "require-dev": {
+        "phpspec/phpspec": "^6.0",
+        "behat/behat": "^3.5"
+    }
+}
