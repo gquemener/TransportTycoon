@@ -10,11 +10,6 @@ use App\ServiceBus\CommandBus;
 
 require __DIR__.'/../vendor/autoload.php';
 
-function logMessage(string $message, ...$params): void
-{
-    printf('[%s] ' . $message . "\n", date('Y-m-d H:i:s'), ...$params);
-}
-
 $containerBuilder = new ContainerBuilder();
 $loader = new PhpFileLoader($containerBuilder, new FileLocator(__DIR__.'/..'));
 $loader->load('services.php');
@@ -44,19 +39,21 @@ $commandBus->dispatch(new Tracking\Domain\Command\RegisterCargoInTheFacility(
     Tracking\Domain\Model\Facility::named('Warehouse B')
 ));
 
-$shipId = TraficRegulation\Domain\Model\VehicleId::generate();
-$truckId1 = TraficRegulation\Domain\Model\VehicleId::generate();
-$truckId2 = TraficRegulation\Domain\Model\VehicleId::generate();
+$vehicleFleetId = TraficRegulation\Domain\Model\VehicleFleetId::generate();
+$commandBus->dispatch(new TraficRegulation\Domain\Command\CreateVehicleFleet(
+    $vehicleFleetId,
+    TraficRegulation\Domain\Model\Facility::named('Factory'),
+));
 
 $commandBus->dispatch(new TraficRegulation\Domain\Command\AddVehicle(
-    $shipId,
-    TraficRegulation\Domain\Model\Facility::named('Port')
+    $vehicleFleetId,
+    'Ship'
 ));
 $commandBus->dispatch(new TraficRegulation\Domain\Command\AddVehicle(
-    $truckId1,
-    TraficRegulation\Domain\Model\Facility::named('Factory')
+    $vehicleFleetId,
+    'Truck 1'
 ));
 $commandBus->dispatch(new TraficRegulation\Domain\Command\AddVehicle(
-    $truckId2,
-    TraficRegulation\Domain\Model\Facility::named('Factory')
+    $vehicleFleetId,
+    'Truck 2'
 ));

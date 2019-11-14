@@ -21,4 +21,14 @@ final class CargoWasRegistered
         $this->position = $position;
         $this->destination = $destination;
     }
+
+    public function cargoId(): CargoId
+    {
+        return $this->id;
+    }
+
+    public function destination(): string
+    {
+        return $this->destination->toString();
+    }
 }

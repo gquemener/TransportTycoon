@@ -15,7 +15,7 @@ final class Cargo
     private $id;
     private $position;
     private $destination;
-    private $vehicleId;
+    private $vehicle;
 
     public function __construct(
         CargoId $id,
@@ -38,10 +38,10 @@ final class Cargo
         return $self;
     }
 
-    public function loadInto(VehicleId $vehicleId): void
+    public function loadInto(Vehicle $vehicle): void
     {
-        $this->vehicleId = $vehicleId;
-        $this->record(new CargoWasLoaded($vehicleId, $this->destination));
+        $this->vehicle = $vehicle;
+        $this->record(new CargoWasLoaded($this->id, $vehicle));
     }
 
     public function id(): CargoId
@@ -56,6 +56,6 @@ final class Cargo
 
     public function isPending(): bool
     {
-        return null === $this->vehicleId;
+        return null === $this->vehicle;
     }
 }

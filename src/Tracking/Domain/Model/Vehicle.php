@@ -1,19 +1,28 @@
 <?php
 declare(strict_types=1);
 
-namespace App\TraficRegulation\Domain\Command;
+namespace App\Tracking\Domain\Model;
 
 use App\TraficRegulation\Domain\Model\VehicleFleetId;
 
-final class AddVehicle
+final class Vehicle
 {
     private $vehicleFleetId;
     private $name;
 
-    public function __construct(VehicleFleetId $vehicleFleetId, string $name)
-    {
+    private function __construct(
+        VehicleFleetId $vehicleFleetId,
+        string $name
+    ) {
         $this->vehicleFleetId = $vehicleFleetId;
         $this->name = $name;
+    }
+
+    public static function create(
+        VehicleFleetId $vehicleFleetId,
+        string $name
+    ): self{
+        return new self($vehicleFleetId, $name);
     }
 
     public function vehicleFleetId(): VehicleFleetId

@@ -15,15 +15,19 @@ use App\TraficRegulation\Domain\Command\AddVehicleHandler;
 use App\TraficRegulation\Domain\Command\ComputeVehicleDestination;
 use App\TraficRegulation\Domain\Command\ComputeVehicleDestinationHandler;
 use App\TraficRegulation\Domain\Event\VehicleWasRegistered;
-use App\TraficRegulation\Domain\Model\VehicleRepository;
+use App\TraficRegulation\Domain\Model\VehicleFleetRepository;
 use App\TraficRegulation\Domain\ProcessManager\DefineVehicleDestination;
-use App\TraficRegulation\Infrastructure\InMemoryVehicleRepository;
+use App\TraficRegulation\Infrastructure\InMemoryVehicleFleetRepository;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
 use App\TraficRegulation\Domain\ProcessManager\PlanVehicleRoute;
 use App\TraficRegulation\Domain\Command\ComputeVehicleRoute;
 use App\TraficRegulation\Domain\Command\ComputeVehicleRouteHandler;
+use App\TraficRegulation\Domain\Command\CreateVehicleFleet;
+use App\TraficRegulation\Domain\Command\CreateVehicleFleetHandler;
+use App\Tracking\Domain\Event\CargoWasRegistered;
+use App\TraficRegulation\Domain\Event\VehicleHasBeenAdded;
 
 return function(ContainerConfigurator $configurator) {
     $services = $configurator->services();
@@ -31,7 +35,7 @@ return function(ContainerConfigurator $configurator) {
     $services->set(CargoRepository::class, InMemoryCargoRepository::class)
              ->args([ref(EventBus::class)]);
 
-    $services->set(VehicleRepository::class, InMemoryVehicleRepository::class)
+    $services->set(VehicleFleetRepository::class, InMemoryVehicleFleetRepository::class)
              ->args([ref(EventBus::class)]);
 
     $services->set(LoadEmptyVehicle::class)
@@ -43,11 +47,14 @@ return function(ContainerConfigurator $configurator) {
     $services->set(LoadPendingCargoHandler::class)
              ->args([ref(CargoRepository::class)]);
 
+    $services->set(CreateVehicleFleetHandler::class)
+             ->args([ref(VehicleFleetRepository::class)]);
+
     $services->set(AddVehicleHandler::class)
-             ->args([ref(VehicleRepository::class)]);
+             ->args([ref(VehicleFleetRepository::class)]);
 
     $services->set(ComputeVehicleRouteHandler::class)
-             ->args([ref(VehicleRepository::class)]);
+             ->args([ref(VehicleFleetRepository::class)]);
 
     $services->set(PlanVehicleRoute::class)
              ->args([ref(CommandBus::class)]);
@@ -58,6 +65,7 @@ return function(ContainerConfigurator $configurator) {
     $services->set('app.command_handler_locator', ServiceLocator::class)
              ->args([[
                  RegisterCargoInTheFacility::class => ref(RegisterCargoInTheFacilityHandler::class),
+                 CreateVehicleFleet::class => ref(CreateVehicleFleetHandler::class),
                  AddVehicle::class => ref(AddVehicleHandler::class),
                  LoadPendingCargo::class => ref(LoadPendingCargoHandler::class),
                  ComputeVehicleRoute::class => ref(ComputeVehicleRouteHandler::class),
@@ -66,8 +74,11 @@ return function(ContainerConfigurator $configurator) {
 
     $services->set(EventBus::class)
              ->args([[
-                 VehicleWasRegistered::class => [
-                     [ ref(LoadEmptyVehicle::class), 'onVehicleWasRegistered' ]
+                 VehicleHasBeenAdded::class => [
+                     [ ref(LoadEmptyVehicle::class), 'onVehicleHasBeenAdded' ]
+                 ],
+                 CargoWasRegistered::class => [
+                     [ ref(PlanVehicleRoute::class), 'onCargoWasRegistered' ]
                  ],
                  CargoWasLoaded::class => [
                      [ ref(PlanVehicleRoute::class), 'onCargoWasLoaded' ]

@@ -6,7 +6,7 @@ namespace App\TraficRegulation\Domain\Model;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
-final class VehicleId
+final class VehicleFleetId
 {
     private $uuid;
 

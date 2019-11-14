@@ -3,25 +3,25 @@ declare(strict_types=1);
 
 namespace App\Tracking\Domain\Command;
 
-use App\TraficRegulation\Domain\Model\VehicleId;
 use App\Tracking\Domain\Model\Facility;
+use App\Tracking\Domain\Model\Vehicle;
 
 final class LoadPendingCargo
 {
-    private $vehicleId;
+    private $vehicle;
     private $facility;
 
     public function __construct(
-        VehicleId $vehicleId,
+        Vehicle $vehicle,
         Facility $facility
     ) {
-        $this->vehicleId = $vehicleId;
+        $this->vehicle = $vehicle;
         $this->facility = $facility;
     }
 
-    public function vehicleId(): VehicleId
+    public function vehicle(): Vehicle
     {
-        return $this->vehicleId;
+        return $this->vehicle;
     }
 
     public function facility(): Facility

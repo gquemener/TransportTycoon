@@ -3,40 +3,33 @@ declare(strict_types=1);
 
 namespace App\TraficRegulation\Domain\Model;
 
-use App\AggregateRoot;
-use App\TraficRegulation\Domain\Event\VehicleWasRegistered;
-
 final class Vehicle
 {
-    use AggregateRoot;
-
-    private $id;
+    private $name;
     private $position;
+    private $route;
 
     public function __construct(
-        VehicleId $id,
+        string $name,
         Facility $position
     ) {
-        $this->id = $id;
+        $this->name = $name;
         $this->position = $position;
     }
 
-    public static function register(VehicleId $id, Facility $position): self
+    public static function register(string $name, Facility $position): self
     {
-        $self = new self($id, $position);
-        $self->record(new VehicleWasRegistered($id, $position));
-
-        return $self;
+        return new self($name, $position);
     }
 
-    public function followRoute(Route $route): void
+    public function configureRoute(Facility $destination, RouteFinder $finder): void
     {
-        $this->route = $route;
+        $this->route = $finder->find($this->position, $destination);
     }
 
-    public function id(): VehicleId
+    public function name(): string
     {
-        return $this->id;
+        return $this->name;
     }
 
     public function position(): Facility

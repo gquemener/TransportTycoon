@@ -20,7 +20,7 @@ final class LoadPendingCargoHandler
             return;
         }
 
-        $cargo->loadInto($command->vehicleId());
+        $cargo->loadInto($command->vehicle());
 
         $this->repository->persist($cargo);
     }

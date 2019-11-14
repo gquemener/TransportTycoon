@@ -3,11 +3,12 @@ declare(strict_types=1);
 
 namespace App\Tracking\Domain\ProcessManager;
 
-use App\TraficRegulation\Domain\Event\VehicleWasRegistered;
 use App\Tracking\Domain\Model\Facility;
 use App\ServiceBus\CommandBus;
 use App\Tracking\Domain\Model\CargoRepository;
 use App\Tracking\Domain\Command\LoadPendingCargo;
+use App\TraficRegulation\Domain\Event\VehicleHasBeenAdded;
+use App\Tracking\Domain\Model\Vehicle;
 
 final class LoadEmptyVehicle
 {
@@ -18,10 +19,16 @@ final class LoadEmptyVehicle
         $this->commandBus = $commandBus;
     }
 
-    public function onVehicleWasRegistered(VehicleWasRegistered $event): void
+    public function onVehicleHasBeenAdded(VehicleHasBeenAdded $event): void
     {
         $this->commandBus->dispatch(
-            new LoadPendingCargo($event->vehicleId(), Facility::named($event->position()->toString()))
+            new LoadPendingCargo(
+                Vehicle::create(
+                    $event->vehicleFleetId(),
+                    $event->name(),
+                ),
+                Facility::named($event->position()->toString()),
+            )
         );
     }
 }

@@ -3,29 +3,35 @@ declare(strict_types=1);
 
 namespace App\Tracking\Domain\Event;
 
-use App\TraficRegulation\Domain\Model\VehicleId;
-use App\Tracking\Domain\Model\Facility;
+use App\Tracking\Domain\Model\CargoId;
+use App\Tracking\Domain\Model\Vehicle;
+use App\TraficRegulation\Domain\Model\VehicleFleetId;
 
 final class CargoWasLoaded
 {
-    private $vehicleId;
-    private $destination;
+    private $cargoId;
+    private $vehicle;
 
     public function __construct(
-        VehicleId $vehicleId,
-        Facility $destination
+        CargoId $cargoId,
+        Vehicle $vehicle
     ) {
-        $this->vehicleId = $vehicleId;
-        $this->destination = $destination;
+        $this->cargoId = $cargoId;
+        $this->vehicle = $vehicle;
     }
 
-    public function vehicleId(): VehicleId
+    public function cargoId(): CargoId
     {
-        return $this->vehicleId;
+        return $this->cargoId;
     }
 
-    public function destination(): Facility
+    public function vehicleFleetId(): VehicleFleetId
     {
-        return $this->destination;
+        return $this->vehicle->vehicleFleetId();
+    }
+
+    public function vehicleName(): string
+    {
+        return $this->vehicle->name();
     }
 }

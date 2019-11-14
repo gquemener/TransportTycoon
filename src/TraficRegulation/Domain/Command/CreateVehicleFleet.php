@@ -4,16 +4,17 @@ declare(strict_types=1);
 namespace App\TraficRegulation\Domain\Command;
 
 use App\TraficRegulation\Domain\Model\VehicleFleetId;
+use App\TraficRegulation\Domain\Model\Facility;
 
-final class AddVehicle
+final class CreateVehicleFleet
 {
     private $vehicleFleetId;
-    private $name;
+    private $initialPosition;
 
-    public function __construct(VehicleFleetId $vehicleFleetId, string $name)
+    public function __construct(VehicleFleetId $vehicleFleetId, Facility $initialPosition)
     {
         $this->vehicleFleetId = $vehicleFleetId;
-        $this->name = $name;
+        $this->initialPosition = $initialPosition;
     }
 
     public function vehicleFleetId(): VehicleFleetId
@@ -21,8 +22,8 @@ final class AddVehicle
         return $this->vehicleFleetId;
     }
 
-    public function name(): string
+    public function initialPosition(): Facility
     {
-        return $this->name;
+        return $this->initialPosition;
     }
 }

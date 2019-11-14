@@ -29,7 +29,6 @@ final class InMemoryCargoRepository implements CargoRepository
 
     public function firstPendingInFacility(Facility $facility): ?Cargo
     {
-        xdebug_break();
         foreach ($this->cargos as $cargo) {
             if ($cargo->isPending() && $cargo->position()->equals($facility)) {
                 return $cargo;
