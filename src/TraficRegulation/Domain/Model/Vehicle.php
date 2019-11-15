@@ -7,11 +7,10 @@ final class Vehicle
 {
     private $name;
     private $position;
-    private $route;
 
     public function __construct(
         string $name,
-        Facility $position
+        Position $position
     ) {
         $this->name = $name;
         $this->position = $position;
@@ -22,18 +21,46 @@ final class Vehicle
         return new self($name, $position);
     }
 
-    public function configureRoute(Facility $destination, RouteFinder $finder): void
-    {
-        $this->route = $finder->find($this->position, $destination);
-    }
-
     public function name(): string
     {
         return $this->name;
     }
 
-    public function position(): Facility
+    public function position(): Position
     {
         return $this->position;
+    }
+
+    public function configureRoute(Facility $destination, RouteFinder $finder): self
+    {
+        $self = clone $this;
+        $self->position = $finder->find($this->position, $destination);
+
+        return $self;
+    }
+
+    public function move(): self
+    {
+        if ($this->isInFacility()) {
+            return $this;
+        }
+
+        $self = clone $this;
+        $self->position = $self->position->progress();
+        if ($self->position->isOver()) {
+            $self->position = $self->position->destination();
+        }
+
+        return $self;
+    }
+
+    public function isEnRoute(): bool
+    {
+        return $this->position instanceof Route;
+    }
+
+    public function isInFacility(): bool
+    {
+        return $this->position instanceof Facility;
     }
 }

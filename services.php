@@ -7,6 +7,7 @@ use App\Tracking\Domain\Command\LoadPendingCargoHandler;
 use App\Tracking\Domain\Command\RegisterCargoInTheFacility;
 use App\Tracking\Domain\Command\RegisterCargoInTheFacilityHandler;
 use App\Tracking\Domain\Event\CargoWasLoaded;
+use App\Tracking\Domain\Event\CargoWasRegistered;
 use App\Tracking\Domain\Model\CargoRepository;
 use App\Tracking\Domain\ProcessManager\LoadEmptyVehicle;
 use App\Tracking\Infrastructure\InMemoryCargoRepository;
@@ -14,20 +15,21 @@ use App\TraficRegulation\Domain\Command\AddVehicle;
 use App\TraficRegulation\Domain\Command\AddVehicleHandler;
 use App\TraficRegulation\Domain\Command\ComputeVehicleDestination;
 use App\TraficRegulation\Domain\Command\ComputeVehicleDestinationHandler;
-use App\TraficRegulation\Domain\Event\VehicleWasRegistered;
-use App\TraficRegulation\Domain\Model\VehicleFleetRepository;
-use App\TraficRegulation\Domain\ProcessManager\DefineVehicleDestination;
-use App\TraficRegulation\Infrastructure\InMemoryVehicleFleetRepository;
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symfony\Component\DependencyInjection\ServiceLocator;
-use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
-use App\TraficRegulation\Domain\ProcessManager\PlanVehicleRoute;
 use App\TraficRegulation\Domain\Command\ComputeVehicleRoute;
 use App\TraficRegulation\Domain\Command\ComputeVehicleRouteHandler;
 use App\TraficRegulation\Domain\Command\CreateVehicleFleet;
 use App\TraficRegulation\Domain\Command\CreateVehicleFleetHandler;
-use App\Tracking\Domain\Event\CargoWasRegistered;
+use App\TraficRegulation\Domain\Command\RepositionVehicleFleet;
+use App\TraficRegulation\Domain\Command\RepositionVehicleFleetHandler;
 use App\TraficRegulation\Domain\Event\VehicleHasBeenAdded;
+use App\TraficRegulation\Domain\Event\VehicleWasRegistered;
+use App\TraficRegulation\Domain\Model\VehicleFleetRepository;
+use App\TraficRegulation\Domain\ProcessManager\DefineVehicleDestination;
+use App\TraficRegulation\Domain\ProcessManager\PlanVehicleRoute;
+use App\TraficRegulation\Infrastructure\InMemoryVehicleFleetRepository;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\DependencyInjection\ServiceLocator;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
 
 return function(ContainerConfigurator $configurator) {
     $services = $configurator->services();
@@ -56,6 +58,9 @@ return function(ContainerConfigurator $configurator) {
     $services->set(ComputeVehicleRouteHandler::class)
              ->args([ref(VehicleFleetRepository::class)]);
 
+    $services->set(RepositionVehicleFleetHandler::class)
+             ->args([ref(VehicleFleetRepository::class)]);
+
     $services->set(PlanVehicleRoute::class)
              ->args([ref(CommandBus::class)]);
 
@@ -64,11 +69,15 @@ return function(ContainerConfigurator $configurator) {
 
     $services->set('app.command_handler_locator', ServiceLocator::class)
              ->args([[
-                 RegisterCargoInTheFacility::class => ref(RegisterCargoInTheFacilityHandler::class),
+                 // Vehicle Fleet Aggregate
                  CreateVehicleFleet::class => ref(CreateVehicleFleetHandler::class),
                  AddVehicle::class => ref(AddVehicleHandler::class),
-                 LoadPendingCargo::class => ref(LoadPendingCargoHandler::class),
                  ComputeVehicleRoute::class => ref(ComputeVehicleRouteHandler::class),
+                 RepositionVehicleFleet::class => ref(RepositionVehicleFleetHandler::class),
+
+                 // Cargo Aggregate
+                 RegisterCargoInTheFacility::class => ref(RegisterCargoInTheFacilityHandler::class),
+                 LoadPendingCargo::class => ref(LoadPendingCargoHandler::class),
              ]])
              ->tag('container.service_locator');
 

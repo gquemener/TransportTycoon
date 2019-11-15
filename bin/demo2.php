@@ -42,18 +42,24 @@ $commandBus->dispatch(new Tracking\Domain\Command\RegisterCargoInTheFacility(
 $vehicleFleetId = TraficRegulation\Domain\Model\VehicleFleetId::generate();
 $commandBus->dispatch(new TraficRegulation\Domain\Command\CreateVehicleFleet(
     $vehicleFleetId,
-    TraficRegulation\Domain\Model\Facility::named('Factory'),
 ));
 
 $commandBus->dispatch(new TraficRegulation\Domain\Command\AddVehicle(
     $vehicleFleetId,
-    'Ship'
+    'Ship',
+    TraficRegulation\Domain\Model\Facility::named('Port')
 ));
 $commandBus->dispatch(new TraficRegulation\Domain\Command\AddVehicle(
     $vehicleFleetId,
-    'Truck 1'
+    'Truck 1',
+    TraficRegulation\Domain\Model\Facility::named('Factory')
 ));
 $commandBus->dispatch(new TraficRegulation\Domain\Command\AddVehicle(
     $vehicleFleetId,
-    'Truck 2'
+    'Truck 2',
+    TraficRegulation\Domain\Model\Facility::named('Factory')
+));
+
+$commandBus->dispatch(new TraficRegulation\Domain\Command\RepositionVehicleFleet(
+    $vehicleFleetId
 ));

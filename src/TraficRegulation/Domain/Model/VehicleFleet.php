@@ -8,6 +8,7 @@ use App\TraficRegulation\Domain\Event\VehicleFleetHasBeenCreated;
 use App\TraficRegulation\Domain\Event\VehicleHasBeenAdded;
 use App\TraficRegulation\Domain\Event\VehicleFleetHasBeenRepositioned;
 use App\TraficRegulation\Domain\Event\VehicleRouteHasBeenSet;
+use App\TraficRegulation\Domain\Event\VehicleHasEnteredFacility;
 
 final class VehicleFleet
 {
@@ -17,27 +18,26 @@ final class VehicleFleet
     private $initialPosition;
     private $vehicles = [];
 
-    private function __construct(VehicleFleetId $id, Facility $initialPosition)
+    private function __construct(VehicleFleetId $id)
     {
         $this->id = $id;
-        $this->initialPosition = $initialPosition;
     }
 
-    public static function create(VehicleFleetId $id, Facility $initialPosition): self
+    public static function create(VehicleFleetId $id): self
     {
-        $self = new self($id, $initialPosition);
+        $self = new self($id);
         $self->record(new VehicleFleetHasBeenCreated($id));
 
         return $self;
     }
 
-    public function addVehicle(string $name): void
+    public function addVehicle(string $name, Facility $initialPosition): void
     {
         if (isset($this->vehicles[$name])) {
             throw new \InvalidArgumentException(sprintf('Vehicle "%s" has already been added to this fleet', $name));
         }
 
-        $this->vehicles[$name] = Vehicle::register($name, clone $this->initialPosition);
+        $this->vehicles[$name] = Vehicle::register($name, $initialPosition);
         $this->record(new VehicleHasBeenAdded($this->id, $this->vehicles[$name]));
     }
 
@@ -59,7 +59,7 @@ final class VehicleFleet
             ));
         }
 
-        $this->vehicles[$vehicleName]->configureRoute($destination, $finder);
+        $this->vehicles[$vehicleName] = $this->vehicles[$vehicleName]->configureRoute($destination, $finder);
 
         $this->record(new VehicleRouteHasBeenSet(
             $this->id,
@@ -67,10 +67,18 @@ final class VehicleFleet
         ));
     }
 
-    public function reposition(): void
+    public function repositionVehicles(): void
     {
-        foreach ($this->vehicles as $vehicle) {
-            // compute new position
+        foreach ($this->vehicles as $key => $vehicle) {
+            $wasEnRoute = $vehicle->isEnRoute();
+
+            $this->vehicles[$key] = $vehicle = $vehicle->move();
+
+            if ($wasEnRoute && $vehicle->isInFacility()) {
+                $this->record(new VehicleHasEnteredFacility($this->id, $vehicle));
+            }
+
+            var_dump($vehicle->position()->description());
         }
 
         $this->record(new VehicleFleetHasBeenRepositioned($this->id /**, new vehicle positions */));

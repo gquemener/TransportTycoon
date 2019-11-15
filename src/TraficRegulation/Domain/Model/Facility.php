@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\TraficRegulation\Domain\Model;
 
-final class Facility
+final class Facility implements Position
 {
     private $name;
 
@@ -15,6 +15,11 @@ final class Facility
     public static function named(string $name): self
     {
         return new self($name);
+    }
+
+    public function description(): string
+    {
+        return sprintf('In Facility: %s', $this->name);
     }
 
     public function toString(): string

@@ -4,9 +4,8 @@ declare(strict_types=1);
 namespace App\TraficRegulation\Domain\Command;
 
 use App\TraficRegulation\Domain\Model\VehicleFleetRepository;
-use App\TraficRegulation\Domain\Model\VehicleFleet;
 
-final class CreateVehicleFleetHandler
+final class RepositionVehicleFleetHandler
 {
     private $repository;
 
@@ -15,11 +14,18 @@ final class CreateVehicleFleetHandler
         $this->repository = $repository;
     }
 
-    public function handle(CreateVehicleFleet $command): void
+    public function handle(RepositionVehicleFleet $command): void
     {
         $vehicleFleetId = $command->vehicleFleetId();
 
-        $vehicleFleet = VehicleFleet::create($vehicleFleetId);
+        if (null === $vehicleFleet = $this->repository->find($vehicleFleetId)) {
+            throw new \RuntimeException(sprintf(
+                'Could not find vehicle fleet "%s"',
+                $vehicleFleetId->toString()
+            ));
+        }
+
+        $vehicleFleet->repositionVehicles();
 
         $this->repository->persist($vehicleFleet);
     }

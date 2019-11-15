@@ -4,9 +4,8 @@ declare(strict_types=1);
 namespace App\TraficRegulation\Domain\Command;
 
 use App\TraficRegulation\Domain\Model\VehicleFleetId;
-use App\TraficRegulation\Domain\Model\Facility;
 
-final class CreateVehicleFleet
+final class RepositionVehicleFleet
 {
     private $vehicleFleetId;
 

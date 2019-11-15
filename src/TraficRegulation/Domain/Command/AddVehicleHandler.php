@@ -25,7 +25,7 @@ final class AddVehicleHandler
                 $vehicleFleetId->toString()
             ));
         }
-        $vehicleFleet->addVehicle($command->name());
+        $vehicleFleet->addVehicle($command->name(), $command->initialPosition());
 
         $this->repository->persist($vehicleFleet);
     }
