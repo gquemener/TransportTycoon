@@ -60,6 +60,6 @@ $commandBus->dispatch(new TraficRegulation\Domain\Command\AddVehicle(
     TraficRegulation\Domain\Model\Facility::named('Factory')
 ));
 
-$commandBus->dispatch(new TraficRegulation\Domain\Command\RepositionVehicleFleet(
-    $vehicleFleetId
-));
+$commandBus->dispatch(new TraficRegulation\Domain\Command\RepositionVehicleFleet($vehicleFleetId));
+$commandBus->dispatch(new TraficRegulation\Domain\Command\RepositionVehicleFleet($vehicleFleetId));
+$commandBus->dispatch(new TraficRegulation\Domain\Command\RepositionVehicleFleet($vehicleFleetId));

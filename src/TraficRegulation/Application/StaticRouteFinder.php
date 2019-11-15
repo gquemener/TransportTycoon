@@ -58,9 +58,9 @@ final class StaticRouteFinder implements RouteFinder
     private function getRouteFromPort(Facility $destination): Route
     {
         switch ($destination) {
-            case Facility::named('Facility'):
+            case Facility::named('Factory'):
                 return Route::to(
-                    Facility::named('Facility'),
+                    Facility::named('Factory'),
                     1
                 );
 

@@ -33,6 +33,7 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
 use App\TraficRegulation\Domain\Event\VehicleHasEnteredFacility;
 use App\Tracking\Domain\Command\UnloadCargoHandler;
 use App\Tracking\Domain\Command\UnloadCargo;
+use App\Tracking\Domain\Event\CargoWasUnloaded;
 
 return function(ContainerConfigurator $configurator) {
     $services = $configurator->services();
@@ -91,16 +92,20 @@ return function(ContainerConfigurator $configurator) {
     $services->set(EventBus::class)
              ->args([[
                  VehicleHasBeenAdded::class => [
-                     [ ref(HandleIncomingVehicle::class), 'onVehicleHasBeenAdded' ]
+                     [ ref(HandleIncomingVehicle::class), 'onVehicleHasBeenAdded' ],
+                     [ ref(PlanVehicleRoute::class), 'onVehicleHasBeenAdded' ],
                  ],
                  VehicleHasEnteredFacility::class => [
-                     [ ref(HandleIncomingVehicle::class), 'onVehicleHasEnteredFacility' ]
+                     [ ref(HandleIncomingVehicle::class), 'onVehicleHasEnteredFacility' ],
                  ],
                  CargoWasRegistered::class => [
-                     [ ref(PlanVehicleRoute::class), 'onCargoWasRegistered' ]
+                     [ ref(PlanVehicleRoute::class), 'onCargoWasRegistered' ],
                  ],
                  CargoWasLoaded::class => [
-                     [ ref(PlanVehicleRoute::class), 'onCargoWasLoaded' ]
+                     [ ref(PlanVehicleRoute::class), 'onCargoWasLoaded' ],
+                 ],
+                 CargoWasUnloaded::class => [
+                     [ ref(PlanVehicleRoute::class), 'onCargoWasUnloaded' ],
                  ],
              ]]);
 };
