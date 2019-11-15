@@ -77,8 +77,6 @@ final class VehicleFleet
             if ($wasEnRoute && $vehicle->isInFacility()) {
                 $this->record(new VehicleHasEnteredFacility($this->id, $vehicle));
             }
-
-            var_dump($vehicle->position()->description());
         }
 
         $this->record(new VehicleFleetHasBeenRepositioned($this->id /**, new vehicle positions */));

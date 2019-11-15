@@ -7,6 +7,7 @@ use App\Tracking\Domain\Event\CargoWasRegistered;
 use App\AggregateRoot;
 use App\TraficRegulation\Domain\Model\VehicleId;
 use App\Tracking\Domain\Event\CargoWasLoaded;
+use App\Tracking\Domain\Event\CargoWasUnloaded;
 
 final class Cargo
 {
@@ -44,6 +45,21 @@ final class Cargo
         $this->record(new CargoWasLoaded($this->id, $vehicle));
     }
 
+    public function unload(Facility $position): void
+    {
+        if (!$this->isLoaded()) {
+            throw new \RuntimeException(sprintf(
+                'Cargo "%s" is not loaded',
+                $this->id->toString()
+            ));
+        }
+
+        $this->vehicle = null;
+        $this->position = $position;
+
+        $this->record(new CargoWasUnloaded($this->id, $position));
+    }
+
     public function id(): CargoId
     {
         return $this->id;
@@ -54,8 +70,18 @@ final class Cargo
         return $this->position;
     }
 
+    public function vehicle(): ?Vehicle
+    {
+        return $this->vehicle;
+    }
+
     public function isPending(): bool
     {
         return null === $this->vehicle;
+    }
+
+    public function isLoaded(): bool
+    {
+        return $this->vehicle instanceof Vehicle;
     }
 }

@@ -4,20 +4,20 @@ declare(strict_types=1);
 namespace App\Tracking\Domain\Event;
 
 use App\Tracking\Domain\Model\CargoId;
-use App\Tracking\Domain\Model\Vehicle;
+use App\Tracking\Domain\Model\Facility;
 use App\TraficRegulation\Domain\Model\VehicleFleetId;
 
-final class CargoWasLoaded implements \JsonSerializable
+final class CargoWasUnloaded implements \JsonSerializable
 {
     private $cargoId;
-    private $vehicle;
+    private $position;
 
     public function __construct(
         CargoId $cargoId,
-        Vehicle $vehicle
+        Facility $position
     ) {
         $this->cargoId = $cargoId;
-        $this->vehicle = $vehicle;
+        $this->position = $position;
     }
 
     public function cargoId(): CargoId
@@ -25,22 +25,16 @@ final class CargoWasLoaded implements \JsonSerializable
         return $this->cargoId;
     }
 
-    public function vehicleFleetId(): VehicleFleetId
+    public function position(): Facility
     {
-        return $this->vehicle->vehicleFleetId();
-    }
-
-    public function vehicleName(): string
-    {
-        return $this->vehicle->name();
+        return $this->position;
     }
 
     public function jsonSerialize(): array
     {
         return [
             'cargoId' => $this->cargoId->toString(),
-            'vehicleFleetId' => $this->vehicleFleetId()->toString(),
-            'vehicleName' => $this->vehicleName(),
+            'position' => $this->position->toString(),
         ];
     }
 }

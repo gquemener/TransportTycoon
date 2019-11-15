@@ -6,7 +6,7 @@ namespace App\Tracking\Domain\Event;
 use App\Tracking\Domain\Model\CargoId;
 use App\Tracking\Domain\Model\Facility;
 
-final class CargoWasRegistered
+final class CargoWasRegistered implements \JsonSerializable
 {
     private $id;
     private $position;
@@ -30,5 +30,13 @@ final class CargoWasRegistered
     public function destination(): string
     {
         return $this->destination->toString();
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'cargoId' => $this->id->toString(),
+            'destination' => $this->destination(),
+        ];
     }
 }

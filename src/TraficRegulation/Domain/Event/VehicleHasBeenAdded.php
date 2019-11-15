@@ -7,7 +7,7 @@ use App\TraficRegulation\Domain\Model\VehicleFleetId;
 use App\TraficRegulation\Domain\Model\Vehicle;
 use App\TraficRegulation\Domain\Model\Facility;
 
-final class VehicleHasBeenAdded
+final class VehicleHasBeenAdded implements \JsonSerializable
 {
     private $vehicleFleetId;
     private $vehicle;
@@ -25,13 +25,22 @@ final class VehicleHasBeenAdded
         return $this->vehicleFleetId;
     }
 
-    public function name(): string
+    public function vehicleName(): string
     {
         return $this->vehicle->name();
     }
 
-    public function position(): Facility
+    public function vehiclePosition(): Facility
     {
         return $this->vehicle->position();
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'vehicleFleetId' => $this->vehicleFleetId->toString(),
+            'vehicleName' => $this->vehicleName(),
+            'vehiclePosition' => $this->vehiclePosition()->toString(),
+        ];
     }
 }

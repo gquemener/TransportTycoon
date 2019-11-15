@@ -34,4 +34,15 @@ final class Vehicle
     {
         return $this->name;
     }
+
+    public function toString(): string
+    {
+        return $this->name();
+    }
+
+    public function equals(Vehicle $vehicle): bool
+    {
+        return get_class($vehicle) === get_class($this)
+            && $vehicle->name === $this->name;
+    }
 }

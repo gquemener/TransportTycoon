@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Tracking\Domain\Command;
 
 use App\Tracking\Domain\Model\CargoRepository;
+use App\Tracking\Domain\Model\CargoIsAlreadyLoaded;
 
 final class LoadPendingCargoHandler
 {
@@ -16,11 +17,16 @@ final class LoadPendingCargoHandler
 
     public function handle(LoadPendingCargo $command): void
     {
+        $vehicle = $command->vehicle();
+        if (null !== $cargo = $this->repository->loadedInVehicle($vehicle)) {
+            throw new CargoIsAlreadyLoaded($cargo);
+        }
+
         if (null === $cargo = $this->repository->firstPendingInFacility($command->facility())) {
             return;
         }
 
-        $cargo->loadInto($command->vehicle());
+        $cargo->loadInto($vehicle);
 
         $this->repository->persist($cargo);
     }

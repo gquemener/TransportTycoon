@@ -7,5 +7,9 @@ interface CargoRepository
 {
     public function persist(Cargo $cargo): void;
 
+    public function find(CargoId $cargoId): ?Cargo;
+
     public function firstPendingInFacility(Facility $facility): ?Cargo;
+
+    public function loadedInVehicle(Vehicle $vehicle): ?Cargo;
 }

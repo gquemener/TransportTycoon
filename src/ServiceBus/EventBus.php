@@ -15,7 +15,7 @@ final class EventBus
     public function dispatch(object $event): void
     {
         $name = get_class($event);
-        var_dump($name);
+        printf('[%s] %s %s' . "\n", date(\DateTimeInterface::ISO8601), get_class($event), json_encode($event));
         if (isset($this->listeners[$name])) {
             foreach ($this->listeners[$name] as $listener) {
                 $listener($event);

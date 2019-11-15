@@ -6,7 +6,7 @@ namespace App\TraficRegulation\Domain\Event;
 use App\TraficRegulation\Domain\Model\VehicleFleetId;
 use App\TraficRegulation\Domain\Model\Vehicle;
 
-final class VehicleRouteHasBeenSet
+final class VehicleRouteHasBeenSet implements \JsonSerializable
 {
     private $vehicleFleetId;
     private $vehicle;
@@ -17,5 +17,14 @@ final class VehicleRouteHasBeenSet
     ) {
         $this->vehicleFleetId = $vehicleFleetId;
         $this->vehicle = $vehicle;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'vehicleFleetId' => $this->vehicleFleetId->toString(),
+            'vehicleName' => $this->vehicle->name(),
+            'vehiclePosition' => $this->vehicle->position()->description(),
+        ];
     }
 }
