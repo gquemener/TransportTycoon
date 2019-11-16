@@ -8,7 +8,7 @@ final class Vehicle
     private $name;
     private $position;
 
-    public function __construct(
+    private function __construct(
         string $name,
         Position $position
     ) {
@@ -33,6 +33,14 @@ final class Vehicle
 
     public function configureRoute(Facility $destination, RouteFinder $finder): self
     {
+        if (!$this->isInFacility()) {
+            throw new \RuntimeException(sprintf(
+                'Could not configure route of vehicle "%s" because it is not in a facility (Position: "%s")',
+                $this->name,
+                $this->position->description()
+            ));
+        }
+
         $self = clone $this;
         $self->position = $finder->find($this->position, $destination);
 

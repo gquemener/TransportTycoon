@@ -5,7 +5,7 @@ namespace App\Tracking\Domain\Command;
 
 use App\Tracking\Domain\Model\CargoRepository;
 
-final class UnloadCargoHandler
+final class LoadCargoHandler
 {
     private $repository;
 
@@ -14,7 +14,7 @@ final class UnloadCargoHandler
         $this->repository = $repository;
     }
 
-    public function handle(UnloadCargo $command): void
+    public function handle(LoadCargo $command): void
     {
         if (null === $cargo = $this->repository->find($command->cargoId())) {
             throw new \InvalidArgumentException(sprintf(
@@ -23,9 +23,8 @@ final class UnloadCargoHandler
             ));
         }
 
-        $cargo->unloadInto($command->facility());
+        $cargo->loadInto($command->vehicle());
 
         $this->repository->persist($cargo);
     }
 }
-

@@ -37,14 +37,14 @@ final class StaticRouteFinder implements RouteFinder
         switch ($destination) {
             case Facility::named('Warehouse A'):
                 return Route::to(
-                    Facility::named('Warehouse A'),
-                    5
+                    Facility::named('Port'),
+                    1
                 );
 
             case Facility::named('Warehouse B'):
                 return Route::to(
-                    Facility::named('Port'),
-                    1
+                    Facility::named('Warehouse B'),
+                    5
                 );
 
             default:
@@ -64,9 +64,9 @@ final class StaticRouteFinder implements RouteFinder
                     1
                 );
 
-            case Facility::named('Warehouse B'):
+            case Facility::named('Warehouse A'):
                 return Route::to(
-                    Facility::named('Warehouse B'),
+                    Facility::named('Warehouse A'),
                     4
                 );
 
@@ -81,10 +81,11 @@ final class StaticRouteFinder implements RouteFinder
     private function getRouteFromWarehouseA(Facility $destination): Route
     {
         switch ($destination) {
-            case Facility::named('Facility'):
+            case Facility::named('Factory'):
+            case Facility::named('Port'):
                 return Route::to(
-                    Facility::named('Facility'),
-                    5
+                    Facility::named('Port'),
+                    4
                 );
 
             default:
@@ -98,10 +99,10 @@ final class StaticRouteFinder implements RouteFinder
     private function getRouteFromWarehouseB(Facility $destination): Route
     {
         switch ($destination) {
-            case Facility::named('Facility'):
+            case Facility::named('Factory'):
                 return Route::to(
-                    Facility::named('Port'),
-                    4
+                    Facility::named('Factory'),
+                    5
                 );
 
             default:

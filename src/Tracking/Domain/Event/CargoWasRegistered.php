@@ -17,26 +17,32 @@ final class CargoWasRegistered implements \JsonSerializable
         Facility $position,
         Facility $destination
     ) {
-        $this->id = $id;
-        $this->position = $position;
-        $this->destination = $destination;
+        $this->id = $id->toString();
+        $this->position = $position->toString();
+        $this->destination = $destination->toString();
     }
 
     public function cargoId(): CargoId
     {
-        return $this->id;
+        return CargoId::fromString($this->id);
     }
 
-    public function destination(): string
+    public function position(): Facility
     {
-        return $this->destination->toString();
+        return Facility::named($this->position);
+    }
+
+    public function destination(): Facility
+    {
+        return Facility::named($this->destination);
     }
 
     public function jsonSerialize(): array
     {
         return [
-            'cargoId' => $this->id->toString(),
-            'destination' => $this->destination(),
+            'cargoId' => $this->id,
+            'position' => $this->position,
+            'destination' => $this->destination,
         ];
     }
 }

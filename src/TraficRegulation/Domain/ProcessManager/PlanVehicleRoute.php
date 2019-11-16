@@ -10,6 +10,7 @@ use App\TraficRegulation\Domain\Model\Facility;
 use App\Tracking\Domain\Event\CargoWasRegistered;
 use App\Tracking\Domain\Event\CargoWasUnloaded;
 use App\TraficRegulation\Domain\Event\VehicleHasBeenAdded;
+use App\TraficRegulation\Domain\Model\VehicleFleetId;
 
 final class PlanVehicleRoute
 {
@@ -31,16 +32,17 @@ final class PlanVehicleRoute
 
     public function onCargoWasRegistered(CargoWasRegistered $event): void
     {
-        $this->cargoToDestinations[$event->cargoId()->toString()] = $event->destination();
+        $this->cargoToDestinations[$event->cargoId()->toString()] = $event->destination()->toString();
     }
 
     public function onCargoWasLoaded(CargoWasLoaded $event): void
     {
         $cargoId = $event->cargoId();
+        $vehicle = $event->vehicle();
 
         $this->cargoToVehicles[$cargoId->toString()] = [
-            'vehicleFleetId' => $event->vehicleFleetId(),
-            'vehicleName' => $event->vehicleName(),
+            'vehicleFleetId' => $vehicle->vehicleFleetId()->toString(),
+            'vehicleName' => $vehicle->name(),
         ];
 
         if (!isset($this->cargoToDestinations[$cargoId->toString()])) {
@@ -48,12 +50,11 @@ final class PlanVehicleRoute
         }
 
         $destination = $this->cargoToDestinations[$cargoId->toString()];
-        unset($this->cargoToDestinations[$cargoId->toString()]);
 
         $this->commandBus->dispatch(
             new ComputeVehicleRoute(
-                $event->vehicleFleetId(),
-                $event->vehicleName(),
+                $vehicle->vehicleFleetId(),
+                $vehicle->name(),
                 Facility::named($destination)
             )
         );
@@ -74,19 +75,19 @@ final class PlanVehicleRoute
             'vehicleName' => $vehicleName
         ] = $this->cargoToVehicles[$cargoId->toString()];
 
-        if (!isset($this->vehicleToOrigins[$vehicleFleetId->toString()][$vehicleName])) {
+        if (!isset($this->vehicleToOrigins[$vehicleFleetId][$vehicleName])) {
             throw new \RuntimeException(sprintf(
                 'Could not retrieve vehicle origin: unknown vehicle "%s" from vehicle fleet "%s"',
                 $vehicleName,
-                $vehicleFleetId->toString()
+                $vehicleFleetId
             ));
         }
-        $origin = $this->vehicleToOrigins[$vehicleFleetId->toString()][$vehicleName];
+        $origin = $this->vehicleToOrigins[$vehicleFleetId][$vehicleName];
         unset($this->cargoToVehicles[$cargoId->toString()]);
 
         $this->commandBus->dispatch(
             new ComputeVehicleRoute(
-                $vehicleFleetId,
+                VehicleFleetId::fromString($vehicleFleetId),
                 $vehicleName,
                 $origin
             )

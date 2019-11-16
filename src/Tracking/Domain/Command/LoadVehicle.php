@@ -6,7 +6,7 @@ namespace App\Tracking\Domain\Command;
 use App\Tracking\Domain\Model\Facility;
 use App\Tracking\Domain\Model\Vehicle;
 
-final class LoadPendingCargo
+final class LoadVehicle
 {
     private $vehicle;
     private $facility;

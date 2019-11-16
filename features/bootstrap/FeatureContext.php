@@ -48,7 +48,7 @@ class FeatureContext implements Context
     public function iShouldReadTheResult(string $result)
     {
         $output = $this->output->fetch();
-        if ($output !== $result) {
+        if (rtrim($output, "\n") !== $result) {
             throw new \RuntimeException(sprintf(
                 'Expected to see result "%s", but saw:' . "\n%s",
                 $result,

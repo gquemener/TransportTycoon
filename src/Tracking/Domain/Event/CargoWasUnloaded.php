@@ -16,25 +16,25 @@ final class CargoWasUnloaded implements \JsonSerializable
         CargoId $cargoId,
         Facility $position
     ) {
-        $this->cargoId = $cargoId;
-        $this->position = $position;
+        $this->cargoId = $cargoId->toString();
+        $this->position = $position->toString();
     }
 
     public function cargoId(): CargoId
     {
-        return $this->cargoId;
+        return CargoId::fromString($this->cargoId);
     }
 
     public function position(): Facility
     {
-        return $this->position;
+        return Facility::named($this->position);
     }
 
     public function jsonSerialize(): array
     {
         return [
-            'cargoId' => $this->cargoId->toString(),
-            'position' => $this->position->toString(),
+            'cargoId' => $this->cargoId,
+            'position' => $this->position,
         ];
     }
 }

@@ -41,11 +41,19 @@ final class Cargo
 
     public function loadInto(Vehicle $vehicle): void
     {
+        if ($this->isLoaded()) {
+            throw new \RuntimeException(sprintf(
+                'Could not load cargo "%s" into vehicle "%s", it is already loaded in vehicle "%s"',
+                $this->id->toString(),
+                $vehicle->toString(),
+                $this->vehicle->toString()
+            ));
+        }
         $this->vehicle = $vehicle;
         $this->record(new CargoWasLoaded($this->id, $vehicle));
     }
 
-    public function unload(Facility $position): void
+    public function unloadInto(Facility $position): void
     {
         if (!$this->isLoaded()) {
             throw new \RuntimeException(sprintf(
@@ -83,5 +91,10 @@ final class Cargo
     public function isLoaded(): bool
     {
         return $this->vehicle instanceof Vehicle;
+    }
+
+    public function isDelivered(): bool
+    {
+        return $this->position->equals($this->destination);
     }
 }

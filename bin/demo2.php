@@ -26,18 +26,18 @@ $cargoId3 = Tracking\Domain\Model\CargoId::generate();
 $commandBus->dispatch(new Tracking\Domain\Command\RegisterCargoInTheFacility(
     $cargoId1,
     Tracking\Domain\Model\Facility::named('Factory'),
-    Tracking\Domain\Model\Facility::named('Warehouse A')
-));
-$commandBus->dispatch(new Tracking\Domain\Command\RegisterCargoInTheFacility(
-    $cargoId2,
-    Tracking\Domain\Model\Facility::named('Factory'),
     Tracking\Domain\Model\Facility::named('Warehouse B')
 ));
-$commandBus->dispatch(new Tracking\Domain\Command\RegisterCargoInTheFacility(
-    $cargoId3,
-    Tracking\Domain\Model\Facility::named('Factory'),
-    Tracking\Domain\Model\Facility::named('Warehouse B')
-));
+//$commandBus->dispatch(new Tracking\Domain\Command\RegisterCargoInTheFacility(
+//    $cargoId2,
+//    Tracking\Domain\Model\Facility::named('Factory'),
+//    Tracking\Domain\Model\Facility::named('Warehouse B')
+//));
+//$commandBus->dispatch(new Tracking\Domain\Command\RegisterCargoInTheFacility(
+//    $cargoId3,
+//    Tracking\Domain\Model\Facility::named('Factory'),
+//    Tracking\Domain\Model\Facility::named('Warehouse B')
+//));
 
 $vehicleFleetId = TraficRegulation\Domain\Model\VehicleFleetId::generate();
 $commandBus->dispatch(new TraficRegulation\Domain\Command\CreateVehicleFleet(
@@ -60,6 +60,13 @@ $commandBus->dispatch(new TraficRegulation\Domain\Command\AddVehicle(
     TraficRegulation\Domain\Model\Facility::named('Factory')
 ));
 
+$commandBus->dispatch(new TraficRegulation\Domain\Command\RepositionVehicleFleet($vehicleFleetId));
+$commandBus->dispatch(new TraficRegulation\Domain\Command\RepositionVehicleFleet($vehicleFleetId));
+$commandBus->dispatch(new TraficRegulation\Domain\Command\RepositionVehicleFleet($vehicleFleetId));
+$commandBus->dispatch(new TraficRegulation\Domain\Command\RepositionVehicleFleet($vehicleFleetId));
+$commandBus->dispatch(new TraficRegulation\Domain\Command\RepositionVehicleFleet($vehicleFleetId));
+$commandBus->dispatch(new TraficRegulation\Domain\Command\RepositionVehicleFleet($vehicleFleetId));
+$commandBus->dispatch(new TraficRegulation\Domain\Command\RepositionVehicleFleet($vehicleFleetId));
 $commandBus->dispatch(new TraficRegulation\Domain\Command\RepositionVehicleFleet($vehicleFleetId));
 $commandBus->dispatch(new TraficRegulation\Domain\Command\RepositionVehicleFleet($vehicleFleetId));
 $commandBus->dispatch(new TraficRegulation\Domain\Command\RepositionVehicleFleet($vehicleFleetId));

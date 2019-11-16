@@ -2,14 +2,17 @@
 
 use App\ServiceBus\CommandBus;
 use App\ServiceBus\EventBus;
-use App\Tracking\Domain\Command\LoadPendingCargo;
-use App\Tracking\Domain\Command\LoadPendingCargoHandler;
+use App\Tracking\Domain\Command\LoadCargo;
+use App\Tracking\Domain\Command\LoadCargoHandler;
 use App\Tracking\Domain\Command\RegisterCargoInTheFacility;
 use App\Tracking\Domain\Command\RegisterCargoInTheFacilityHandler;
+use App\Tracking\Domain\Command\UnloadCargo;
+use App\Tracking\Domain\Command\UnloadCargoHandler;
 use App\Tracking\Domain\Event\CargoWasLoaded;
 use App\Tracking\Domain\Event\CargoWasRegistered;
+use App\Tracking\Domain\Event\CargoWasUnloaded;
 use App\Tracking\Domain\Model\CargoRepository;
-use App\Tracking\Domain\ProcessManager\HandleIncomingVehicle;
+use App\Tracking\Domain\ProcessManager\CargoHandler;
 use App\Tracking\Infrastructure\InMemoryCargoRepository;
 use App\TraficRegulation\Domain\Command\AddVehicle;
 use App\TraficRegulation\Domain\Command\AddVehicleHandler;
@@ -22,6 +25,7 @@ use App\TraficRegulation\Domain\Command\CreateVehicleFleetHandler;
 use App\TraficRegulation\Domain\Command\RepositionVehicleFleet;
 use App\TraficRegulation\Domain\Command\RepositionVehicleFleetHandler;
 use App\TraficRegulation\Domain\Event\VehicleHasBeenAdded;
+use App\TraficRegulation\Domain\Event\VehicleHasEnteredFacility;
 use App\TraficRegulation\Domain\Event\VehicleWasRegistered;
 use App\TraficRegulation\Domain\Model\VehicleFleetRepository;
 use App\TraficRegulation\Domain\ProcessManager\DefineVehicleDestination;
@@ -30,10 +34,10 @@ use App\TraficRegulation\Infrastructure\InMemoryVehicleFleetRepository;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
-use App\TraficRegulation\Domain\Event\VehicleHasEnteredFacility;
-use App\Tracking\Domain\Command\UnloadCargoHandler;
-use App\Tracking\Domain\Command\UnloadCargo;
-use App\Tracking\Domain\Event\CargoWasUnloaded;
+use App\Simulation\Application\Service\StaticSimulator;
+use App\Simulation\Domain\Service\Simulator;
+use App\Console\LogDomainEventToConsoleDecorator;
+use App\ServiceBus\SimpleEventBus;
 
 return function(ContainerConfigurator $configurator) {
     $services = $configurator->services();
@@ -44,13 +48,13 @@ return function(ContainerConfigurator $configurator) {
     $services->set(VehicleFleetRepository::class, InMemoryVehicleFleetRepository::class)
              ->args([ref(EventBus::class)]);
 
-    $services->set(HandleIncomingVehicle::class)
+    $services->set(CargoHandler::class)
              ->args([ref(CommandBus::class)]);
 
     $services->set(RegisterCargoInTheFacilityHandler::class)
              ->args([ref(CargoRepository::class)]);
 
-    $services->set(LoadPendingCargoHandler::class)
+    $services->set(LoadCargoHandler::class)
              ->args([ref(CargoRepository::class)]);
 
     $services->set(UnloadCargoHandler::class)
@@ -71,6 +75,9 @@ return function(ContainerConfigurator $configurator) {
     $services->set(PlanVehicleRoute::class)
              ->args([ref(CommandBus::class)]);
 
+    $services->set(Simulator::class, StaticSimulator::class)
+             ->args([ref(CommandBus::class)]);
+
     $services->set(CommandBus::class)
              ->args([ref('app.command_handler_locator')]);
 
@@ -84,28 +91,37 @@ return function(ContainerConfigurator $configurator) {
 
                  // Cargo Aggregate
                  RegisterCargoInTheFacility::class => ref(RegisterCargoInTheFacilityHandler::class),
-                 LoadPendingCargo::class => ref(LoadPendingCargoHandler::class),
+                 LoadCargo::class => ref(LoadCargoHandler::class),
                  UnloadCargo::class => ref(UnloadCargoHandler::class),
              ]])
              ->tag('container.service_locator');
 
-    $services->set(EventBus::class)
+    $services->set(EventBus::class, SimpleEventBus::class)
              ->args([[
                  VehicleHasBeenAdded::class => [
-                     [ ref(HandleIncomingVehicle::class), 'onVehicleHasBeenAdded' ],
+                     [ ref(CargoHandler::class), 'onVehicleHasBeenAdded' ],
                      [ ref(PlanVehicleRoute::class), 'onVehicleHasBeenAdded' ],
                  ],
                  VehicleHasEnteredFacility::class => [
-                     [ ref(HandleIncomingVehicle::class), 'onVehicleHasEnteredFacility' ],
+                     [ ref(CargoHandler::class), 'onVehicleHasEnteredFacility' ],
                  ],
                  CargoWasRegistered::class => [
+                     [ ref(CargoHandler::class), 'onCargoWasRegistered' ],
                      [ ref(PlanVehicleRoute::class), 'onCargoWasRegistered' ],
+                     [ ref(Simulator::class), 'onCargoWasRegistered' ],
                  ],
                  CargoWasLoaded::class => [
+                     [ ref(CargoHandler::class), 'onCargoWasLoaded' ],
                      [ ref(PlanVehicleRoute::class), 'onCargoWasLoaded' ],
                  ],
                  CargoWasUnloaded::class => [
+                     [ ref(CargoHandler::class), 'onCargoWasUnloaded' ],
                      [ ref(PlanVehicleRoute::class), 'onCargoWasUnloaded' ],
+                     [ ref(Simulator::class), 'onCargoWasUnloaded' ],
                  ],
              ]]);
+
+    $services->set(LogDomainEventToConsoleDecorator::class)
+        ->decorate(EventBus::class)
+        ->args([ref(LogDomainEventToConsoleDecorator::class.'.inner')]);
 };

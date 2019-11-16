@@ -11,5 +11,5 @@ interface CargoRepository
 
     public function firstPendingInFacility(Facility $facility): ?Cargo;
 
-    public function loadedInVehicle(Vehicle $vehicle): ?Cargo;
+    public function hasCargo(Vehicle $vehicle): bool;
 }

@@ -5,6 +5,7 @@ namespace App\TraficRegulation\Domain\Command;
 
 use App\TraficRegulation\Domain\Model\Facility;
 use App\TraficRegulation\Domain\Model\VehicleFleetId;
+use App\TraficRegulation\Domain\Model\Vehicle;
 
 final class ComputeVehicleRoute
 {
@@ -17,14 +18,14 @@ final class ComputeVehicleRoute
         string $vehicleName,
         Facility $destination
     ) {
-        $this->vehicleFleetId = $vehicleFleetId;
+        $this->vehicleFleetId = $vehicleFleetId->toString();
         $this->vehicleName = $vehicleName;
         $this->destination = $destination;
     }
 
     public function vehicleFleetId(): VehicleFleetId
     {
-        return $this->vehicleFleetId;
+        return VehicleFleetId::fromString($this->vehicleFleetId);
     }
 
     public function vehicleName(): string

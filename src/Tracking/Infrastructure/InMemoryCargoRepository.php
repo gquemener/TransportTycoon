@@ -49,14 +49,14 @@ final class InMemoryCargoRepository implements CargoRepository
         return null;
     }
 
-    public function loadedInVehicle(Vehicle $vehicle): ?Cargo
+    public function hasCargo(Vehicle $vehicle): bool
     {
         foreach ($this->cargos as $cargo) {
             if ($cargo->isLoaded() && $cargo->vehicle()->equals($vehicle)) {
-                return $cargo;
+                return true;
             }
         }
 
-        return null;
+        return false;
     }
 }
