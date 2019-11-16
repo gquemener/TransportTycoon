@@ -12,6 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use App\Simulation\Domain\Service\Simulator;
 use App\TraficRegulation\Domain\Model\Facility;
 use App\Console\LogDomainEventToConsoleDecorator;
+use App\Console\LogDomainCommandToConsoleDecorator;
 
 final class ComputeTimeToDeliver extends Command
 {
@@ -36,8 +37,10 @@ final class ComputeTimeToDeliver extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $simulator = $this->container->get(Simulator::class);
-        $consoleLogger = $this->container->get(LogDomainEventToConsoleDecorator::class);
-        $consoleLogger->setOutput($output);
+        $eventLogger = $this->container->get(LogDomainEventToConsoleDecorator::class);
+        $commandLogger = $this->container->get(LogDomainCommandToConsoleDecorator::class);
+        $eventLogger->setOutput($output);
+        $commandLogger->setOutput($output);
 
         $cargos = array_map(function(string $id) {
             return sprintf('Warehouse %s', $id);

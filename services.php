@@ -1,7 +1,13 @@
 <?php
 
+use App\Console\LogDomainCommandToConsoleDecorator;
+use App\Console\LogDomainEventToConsoleDecorator;
 use App\ServiceBus\CommandBus;
 use App\ServiceBus\EventBus;
+use App\ServiceBus\SimpleEventBus;
+use App\ServiceBus\SymfonyLocatorCommandBus;
+use App\Simulation\Application\Service\StaticSimulator;
+use App\Simulation\Domain\Service\Simulator;
 use App\Tracking\Domain\Command\LoadCargo;
 use App\Tracking\Domain\Command\LoadCargoHandler;
 use App\Tracking\Domain\Command\RegisterCargoInTheFacility;
@@ -34,10 +40,7 @@ use App\TraficRegulation\Infrastructure\InMemoryVehicleFleetRepository;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
-use App\Simulation\Application\Service\StaticSimulator;
-use App\Simulation\Domain\Service\Simulator;
-use App\Console\LogDomainEventToConsoleDecorator;
-use App\ServiceBus\SimpleEventBus;
+use App\TraficRegulation\Domain\Event\VehicleRouteHasBeenSet;
 
 return function(ContainerConfigurator $configurator) {
     $services = $configurator->services();
@@ -78,8 +81,12 @@ return function(ContainerConfigurator $configurator) {
     $services->set(Simulator::class, StaticSimulator::class)
              ->args([ref(CommandBus::class)]);
 
-    $services->set(CommandBus::class)
+    $services->set(CommandBus::class, SymfonyLocatorCommandBus::class)
              ->args([ref('app.command_handler_locator')]);
+
+    $services->set(LogDomainCommandToConsoleDecorator::class)
+        ->decorate(CommandBus::class)
+        ->args([ref(LogDomainCommandToConsoleDecorator::class.'.inner')]);
 
     $services->set('app.command_handler_locator', ServiceLocator::class)
              ->args([[
@@ -105,6 +112,9 @@ return function(ContainerConfigurator $configurator) {
                  VehicleHasEnteredFacility::class => [
                      [ ref(CargoHandler::class), 'onVehicleHasEnteredFacility' ],
                  ],
+                 VehicleRouteHasBeenSet::class => [
+                     [ ref(CargoHandler::class), 'onVehicleRouteHasBeenSet' ],
+                 ],
                  CargoWasRegistered::class => [
                      [ ref(CargoHandler::class), 'onCargoWasRegistered' ],
                      [ ref(PlanVehicleRoute::class), 'onCargoWasRegistered' ],
@@ -115,8 +125,8 @@ return function(ContainerConfigurator $configurator) {
                      [ ref(PlanVehicleRoute::class), 'onCargoWasLoaded' ],
                  ],
                  CargoWasUnloaded::class => [
-                     [ ref(CargoHandler::class), 'onCargoWasUnloaded' ],
                      [ ref(PlanVehicleRoute::class), 'onCargoWasUnloaded' ],
+                     [ ref(CargoHandler::class), 'onCargoWasUnloaded' ],
                      [ ref(Simulator::class), 'onCargoWasUnloaded' ],
                  ],
              ]]);
