@@ -18,6 +18,7 @@ use App\Tracking\Domain\Event\CargoWasLoaded;
 use App\Tracking\Domain\Command\LoadCargo;
 use App\Tracking\Domain\Event\CargoWasRegistered;
 use App\TraficRegulation\Domain\Event\VehicleRouteHasBeenSet;
+use App\Tracking\Domain\Model\CargoId;
 
 final class CargoHandler
 {
@@ -26,6 +27,7 @@ final class CargoHandler
     private $loadedVehicles = [];
     private $facilityCargos = [];
     private $facilityVehicles = [];
+    private $cargoToDestinations = [];
 
     public function __construct(CommandBus $commandBus)
     {
@@ -34,7 +36,8 @@ final class CargoHandler
 
     public function onCargoWasRegistered(CargoWasRegistered $event): void
     {
-        $this->facilityCargos[$event->position()->toString()][] = $event->cargoId();
+        $this->facilityCargos[$event->position()->toString()][] = $event->cargoId()->toString();
+        $this->cargoToDestinations[$event->cargoId()->toString()] = $event->destination()->toString();
     }
 
     public function onVehicleHasBeenAdded(VehicleHasBeenAdded $event): void
@@ -78,6 +81,7 @@ final class CargoHandler
 
     public function onCargoWasLoaded(CargoWasLoaded $event): void
     {
+
         $vehicle = $event->vehicle();
 
         $this->loadedVehicles[$vehicle->vehicleFleetId()->toString()][$vehicle->name()] = $event->cargoId();
@@ -85,14 +89,20 @@ final class CargoHandler
 
     public function onCargoWasUnloaded(CargoWasUnloaded $event): void
     {
+        if ($event->position()->equals(Facility::named($this->cargoToDestinations[$event->cargoId()->toString()]))) {
+            unset($this->cargoToDestinations[$event->cargoId()->toString()]);
+
+            return;
+        }
+
         $position = $event->position();
-        $this->facilityCargos[$position->toString()][] = $event->cargoId();
+        $this->facilityCargos[$position->toString()][] = $event->cargoId()->toString();
 
         if (0 === count($this->facilityVehicles[$position->toString()])) {
             return;
         }
         $vehicle = array_shift($this->facilityVehicles[$position->toString()]);
-        $this->commandBus->dispatch(new LoadCargo($event->cargoId(), $vehicle));
+        $this->dispatchLoadCargoCommand($vehicle, $position);
     }
 
     private function dispatchLoadCargoCommand(Vehicle $vehicle, Facility $facility): void
@@ -105,6 +115,6 @@ final class CargoHandler
         }
 
         $cargoId = array_shift($this->facilityCargos[$facility->toString()]);
-        $this->commandBus->dispatch(new LoadCargo($cargoId, $vehicle));
+        $this->commandBus->dispatch(new LoadCargo(CargoId::fromString($cargoId), $vehicle));
     }
 }
