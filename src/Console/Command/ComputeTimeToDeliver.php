@@ -46,8 +46,8 @@ final class ComputeTimeToDeliver extends Command
             return sprintf('Warehouse %s', $id);
         }, str_split($input->getArgument('cargos')));
 
-        $simulator->run($cargos);
+        $loops = $simulator->run($cargos);
 
-        $output->writeln($simulator->loops());
+        $output->writeln($loops);
     }
 }

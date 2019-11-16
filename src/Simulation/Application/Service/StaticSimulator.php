@@ -21,7 +21,6 @@ final class StaticSimulator implements Simulator
     private const MAX_LOOPS = 100;
 
     private $commandBus;
-    private $loops = 0;
     private $cargoDestinations = [];
 
     public function __construct(
@@ -30,9 +29,9 @@ final class StaticSimulator implements Simulator
         $this->commandBus = $commandBus;
     }
 
-    public function run(array $cargoDestinations): void
+    public function run(array $cargoDestinations): int
     {
-        $this->loops = 0;
+        $loops = 0;
         $this->cargoDestinations = [];
 
         foreach ($cargoDestinations as $destination) {
@@ -63,10 +62,16 @@ final class StaticSimulator implements Simulator
         ));
 
         do {
-            ++$this->loops;
+            ++$loops;
             $this->commandBus->dispatch(new RepositionVehicleFleet($vehicleFleetId));
 
-        } while ($this->loops < self::MAX_LOOPS && 0 < count($this->cargoDestinations));
+        } while ($loops < self::MAX_LOOPS && 0 < count($this->cargoDestinations));
+
+        if (0 !== count($this->cargoDestinations)) {
+            throw new \RuntimeException(sprintf('The simulation aborted because it took more than %d iterations to complete', self::MAX_LOOPS));
+        }
+
+        return $loops;
     }
 
     public function onCargoWasRegistered(CargoWasRegistered $event): void

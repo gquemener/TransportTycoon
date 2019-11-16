@@ -8,7 +8,7 @@ use App\Tracking\Domain\Event\CargoWasUnloaded;
 
 interface Simulator
 {
-    public function run(array $cargoDestinations): void;
+    public function run(array $cargoDestinations): int;
 
     public function onCargoWasRegistered(CargoWasRegistered $event): void;
 

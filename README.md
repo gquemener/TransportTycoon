@@ -24,8 +24,14 @@ $ composer install
 $ docker-compose up -d
 ```
 
-# Tests
+## Tests
 
 ```
 $ bin/behat
+```
+
+## Usage
+
+```
+$ bin/app time-to-deliver [-vvv] ABBA
 ```
