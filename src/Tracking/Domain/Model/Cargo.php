@@ -65,7 +65,11 @@ final class Cargo
         $this->vehicle = null;
         $this->position = $position;
 
-        $this->record(new CargoWasUnloaded($this->id, $position));
+        $this->record(new CargoWasUnloaded(
+            $this->id,
+            $position,
+            $this->hasReachedDestination()
+        ));
     }
 
     public function id(): CargoId
@@ -93,7 +97,7 @@ final class Cargo
         return $this->vehicle instanceof Vehicle;
     }
 
-    public function isDelivered(): bool
+    public function hasReachedDestination(): bool
     {
         return $this->position->equals($this->destination);
     }

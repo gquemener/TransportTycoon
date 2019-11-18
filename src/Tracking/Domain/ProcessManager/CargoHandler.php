@@ -27,7 +27,6 @@ final class CargoHandler
     private $loadedVehicles = [];
     private $facilityCargos = [];
     private $facilityVehicles = [];
-    private $cargoToDestinations = [];
 
     public function __construct(CommandBus $commandBus)
     {
@@ -37,7 +36,6 @@ final class CargoHandler
     public function onCargoWasRegistered(CargoWasRegistered $event): void
     {
         $this->facilityCargos[$event->position()->toString()][] = $event->cargoId()->toString();
-        $this->cargoToDestinations[$event->cargoId()->toString()] = $event->destination()->toString();
     }
 
     public function onVehicleHasBeenAdded(VehicleHasBeenAdded $event): void
@@ -104,9 +102,7 @@ final class CargoHandler
 
     public function onCargoWasUnloaded(CargoWasUnloaded $event): void
     {
-        if ($event->position()->equals(Facility::named($this->cargoToDestinations[$event->cargoId()->toString()]))) {
-            unset($this->cargoToDestinations[$event->cargoId()->toString()]);
-
+        if ($event->hasReachedDestination()) {
             return;
         }
 
