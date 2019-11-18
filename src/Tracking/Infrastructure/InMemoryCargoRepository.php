@@ -38,17 +38,6 @@ final class InMemoryCargoRepository implements CargoRepository
         return $this->cargos[$cargoId->toString()];
     }
 
-    public function firstPendingInFacility(Facility $facility): ?Cargo
-    {
-        foreach ($this->cargos as $cargo) {
-            if ($cargo->isPending() && $cargo->position()->equals($facility)) {
-                return $cargo;
-            }
-        }
-
-        return null;
-    }
-
     public function hasCargo(Vehicle $vehicle): bool
     {
         foreach ($this->cargos as $cargo) {

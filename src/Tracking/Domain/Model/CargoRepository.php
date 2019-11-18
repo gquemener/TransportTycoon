@@ -9,7 +9,5 @@ interface CargoRepository
 
     public function find(CargoId $cargoId): ?Cargo;
 
-    public function firstPendingInFacility(Facility $facility): ?Cargo;
-
     public function hasCargo(Vehicle $vehicle): bool;
 }
