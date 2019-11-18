@@ -21,7 +21,6 @@ Given the program, the results are:
 
 ```
 $ composer install
-$ docker-compose up -d
 ```
 
 ## Tests
@@ -33,5 +32,14 @@ $ bin/behat
 ## Usage
 
 ```
-$ bin/app time-to-deliver [-vvv] ABBA
+$ bin/app time-to-deliver [-vvv] [--debug <directory>] ABBA
 ```
+
+### Dumping events log and generating a Chrome trace
+
+```
+$ bin/app time-to-deliver --debug logs ABBA # will create ./logs/ABBA.log file
+$ bin/trace.py ./logs/ABBA.log > ./traces/ABBA.json
+```
+
+Open chrome at url `chrome://tracing`, click the `Load` button and select the `./traces/ABBA.json`.

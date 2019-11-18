@@ -29,4 +29,10 @@ final class CargoId
     {
         return $this->uuid->toString();
     }
+
+    public function equals(CargoId $cargoId): bool
+    {
+        return get_class($cargoId) === get_class($this)
+            && $cargoId->uuid->equals($this->uuid);
+    }
 }

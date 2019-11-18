@@ -41,6 +41,11 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
 use App\TraficRegulation\Domain\Event\VehicleRouteHasBeenSet;
+use App\Debug\Listener\LogDomainEvents;
+use App\TraficRegulation\Domain\Event\VehicleFleetHasBeenRepositioned;
+use App\Simulation\Domain\Command\StartSimulationHandler;
+use App\Simulation\Domain\Command\StartSimulation;
+use App\Simulation\Domain\Event\SimulationHasStarted;
 
 return function(ContainerConfigurator $configurator) {
     $services = $configurator->services();
@@ -78,8 +83,13 @@ return function(ContainerConfigurator $configurator) {
     $services->set(PlanVehicleRoute::class)
              ->args([ref(CommandBus::class)]);
 
+    $services->set(StartSimulationHandler::class)
+             ->args([ref(EventBus::class)]);
+
     $services->set(Simulator::class, StaticSimulator::class)
              ->args([ref(CommandBus::class)]);
+
+    $services->set(LogDomainEvents::class);
 
     $services->set(CommandBus::class, SymfonyLocatorCommandBus::class)
              ->args([ref('app.command_handler_locator')]);
@@ -100,35 +110,50 @@ return function(ContainerConfigurator $configurator) {
                  RegisterCargoInTheFacility::class => ref(RegisterCargoInTheFacilityHandler::class),
                  LoadCargo::class => ref(LoadCargoHandler::class),
                  UnloadCargo::class => ref(UnloadCargoHandler::class),
+
+                 // Simulation Domain
+                 StartSimulation::class => ref(StartSimulationHandler::class),
              ]])
              ->tag('container.service_locator');
 
     $services->set(EventBus::class, SimpleEventBus::class)
              ->args([[
                  VehicleHasBeenAdded::class => [
+                     [ ref(LogDomainEvents::class), 'onVehicleHasBeenAdded' ],
                      [ ref(CargoHandler::class), 'onVehicleHasBeenAdded' ],
                      [ ref(PlanVehicleRoute::class), 'onVehicleHasBeenAdded' ],
                  ],
                  VehicleHasEnteredFacility::class => [
+                     [ ref(LogDomainEvents::class), 'onVehicleHasEnteredFacility' ],
                      [ ref(CargoHandler::class), 'onVehicleHasEnteredFacility' ],
                  ],
                  VehicleRouteHasBeenSet::class => [
+                     [ ref(LogDomainEvents::class), 'onVehicleRouteHasBeenSet' ],
                      [ ref(CargoHandler::class), 'onVehicleRouteHasBeenSet' ],
                  ],
                  CargoWasRegistered::class => [
+                     [ ref(LogDomainEvents::class), 'onCargoWasRegistered' ],
                      [ ref(CargoHandler::class), 'onCargoWasRegistered' ],
                      [ ref(PlanVehicleRoute::class), 'onCargoWasRegistered' ],
                      [ ref(Simulator::class), 'onCargoWasRegistered' ],
                  ],
                  CargoWasLoaded::class => [
+                     [ ref(LogDomainEvents::class), 'onCargoWasLoaded' ],
                      [ ref(CargoHandler::class), 'onCargoWasLoaded' ],
                      [ ref(PlanVehicleRoute::class), 'onCargoWasLoaded' ],
                  ],
                  CargoWasUnloaded::class => [
+                     [ ref(LogDomainEvents::class), 'onCargoWasUnloaded' ],
                      [ ref(PlanVehicleRoute::class), 'onCargoWasUnloaded' ],
                      [ ref(CargoHandler::class), 'onCargoWasUnloaded' ],
                      [ ref(Simulator::class), 'onCargoWasUnloaded' ],
                  ],
+                 VehicleFleetHasBeenRepositioned::class => [
+                     [ ref(LogDomainEvents::class), 'onVehicleFleetHasBeenRepositioned' ],
+                 ],
+                 SimulationHasStarted::class => [
+                     [ ref(LogDomainEvents::class), 'onSimulationHasStarted' ],
+                 ]
              ]]);
 
     $services->set(LogDomainEventToConsoleDecorator::class)

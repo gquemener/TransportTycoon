@@ -15,6 +15,7 @@ use App\TraficRegulation\Domain\Command\CreateVehicleFleet;
 use App\TraficRegulation\Domain\Command\RepositionVehicleFleet;
 use App\TraficRegulation\Domain\Model\Facility as TraficRegulationFacility;
 use App\TraficRegulation\Domain\Model\VehicleFleetId;
+use App\Simulation\Domain\Command\StartSimulation;
 
 final class StaticSimulator implements Simulator
 {
@@ -60,6 +61,8 @@ final class StaticSimulator implements Simulator
             'Truck 2',
             TraficRegulationFacility::named('Factory')
         ));
+
+        $this->commandBus->dispatch(new StartSimulation());
 
         do {
             ++$loops;

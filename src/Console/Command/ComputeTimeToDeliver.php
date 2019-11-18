@@ -13,6 +13,8 @@ use App\Simulation\Domain\Service\Simulator;
 use App\TraficRegulation\Domain\Model\Facility;
 use App\Console\LogDomainEventToConsoleDecorator;
 use App\Console\LogDomainCommandToConsoleDecorator;
+use App\Debug\Listener\LogDomainEvents;
+use Symfony\Component\Console\Input\InputOption;
 
 final class ComputeTimeToDeliver extends Command
 {
@@ -31,6 +33,7 @@ final class ComputeTimeToDeliver extends Command
             ->setName('time-to-deliver')
             ->setDescription('Calculate the time required to deliver a list of cargos')
             ->addArgument('cargos', InputArgument::REQUIRED, 'The list of cargos (ex: AAABBBABBAAA)')
+            ->addOption('debug', null, InputOption::VALUE_REQUIRED, 'The directory in which to dump the events log')
         ;
     }
 
@@ -42,11 +45,16 @@ final class ComputeTimeToDeliver extends Command
         $eventLogger->setOutput($output);
         $commandLogger->setOutput($output);
 
-        $cargos = array_map(function(string $id) {
-            return sprintf('Warehouse %s', $id);
-        }, str_split($input->getArgument('cargos')));
+$cargos = $input->getArgument('cargos');
+        if ($input->hasOption('debug')) {
+            $this->container->get(LogDomainEvents::class)->setLogFile(
+                sprintf('%s/%s/%s.log', getcwd(), $input->getOption('debug'), $cargos)
+            );
+        }
 
-        $loops = $simulator->run($cargos);
+        $loops = $simulator->run(array_map(function(string $id) {
+            return sprintf('Warehouse %s', $id);
+        }, str_split($cargos)));
 
         $output->writeln($loops);
     }

@@ -1,0 +1,133 @@
+{
+ "displayTimeUnit": "ms",
+ "traceEvents": [
+  {
+   "ts": 0,
+   "pid": "TRUCK:0",
+   "tid": "TRUCK:0",
+   "cat": "ddd",
+   "args": {
+    "cargo": [
+     "CARGO:FACTORY_A_0"
+    ],
+    "transport": "TRUCK:0"
+   },
+   "ph": "B",
+   "name": "FACTORY-PORT"
+  },
+  {
+   "ts": 0,
+   "pid": "TRUCK:1",
+   "tid": "TRUCK:1",
+   "cat": "ddd",
+   "args": {
+    "cargo": [
+     "CARGO:FACTORY_B_1"
+    ],
+    "transport": "TRUCK:1"
+   },
+   "ph": "B",
+   "name": "FACTORY-B"
+  },
+  {
+   "ts": 1,
+   "pid": "TRUCK:0",
+   "tid": "TRUCK:0",
+   "cat": "ddd",
+   "args": {
+    "cargo": [
+     "CARGO:FACTORY_A_0"
+    ],
+    "transport": "TRUCK:0"
+   },
+   "ph": "E"
+  },
+  {
+   "ts": 1,
+   "pid": "TRUCK:0",
+   "tid": "TRUCK:0",
+   "cat": "ddd",
+   "args": {
+    "cargo": [],
+    "transport": "TRUCK:0"
+   },
+   "ph": "B",
+   "name": "PORT-FACTORY"
+  },
+  {
+   "ts": 1,
+   "pid": "SHIP:2",
+   "tid": "SHIP:2",
+   "cat": "ddd",
+   "args": {
+    "cargo": [
+     "CARGO:FACTORY_A_0"
+    ],
+    "transport": "SHIP:2"
+   },
+   "ph": "B",
+   "name": "PORT-A"
+  },
+  {
+   "ts": 2,
+   "pid": "TRUCK:0",
+   "tid": "TRUCK:0",
+   "cat": "ddd",
+   "args": {
+    "cargo": [],
+    "transport": "TRUCK:0"
+   },
+   "ph": "E"
+  },
+  {
+   "ts": 5,
+   "pid": "SHIP:2",
+   "tid": "SHIP:2",
+   "cat": "ddd",
+   "args": {
+    "cargo": [
+     "CARGO:FACTORY_A_0"
+    ],
+    "transport": "SHIP:2"
+   },
+   "ph": "E"
+  },
+  {
+   "ts": 5,
+   "pid": "SHIP:2",
+   "tid": "SHIP:2",
+   "cat": "ddd",
+   "args": {
+    "cargo": [],
+    "transport": "SHIP:2"
+   },
+   "ph": "B",
+   "name": "A-PORT"
+  },
+  {
+   "ts": 5,
+   "pid": "TRUCK:1",
+   "tid": "TRUCK:1",
+   "cat": "ddd",
+   "args": {
+    "cargo": [
+     "CARGO:FACTORY_B_1"
+    ],
+    "transport": "TRUCK:1"
+   },
+   "ph": "E"
+  },
+  {
+   "ts": 5,
+   "pid": "TRUCK:1",
+   "tid": "TRUCK:1",
+   "cat": "ddd",
+   "args": {
+    "cargo": [],
+    "transport": "TRUCK:1"
+   },
+   "ph": "B",
+   "name": "B-FACTORY"
+  }
+ ]
+}
