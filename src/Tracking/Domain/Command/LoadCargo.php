@@ -7,7 +7,7 @@ use App\Tracking\Domain\Model\CargoId;
 use App\Tracking\Domain\Model\Vehicle;
 use App\TraficRegulation\Domain\Model\VehicleFleetId;
 
-final class LoadCargo
+final class LoadCargo implements \JsonSerializable
 {
     private $cargoId;
     private $vehicleFleetId;
@@ -31,5 +31,14 @@ final class LoadCargo
             VehicleFleetId::fromString($this->vehicleFleetId),
             $this->vehicleName
         );
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'cargoId' => $this->cargoId,
+            'vehicleFleetId' => $this->vehicleFleetId,
+            'vehicleName' => $this->vehicleName,
+        ];
     }
 }

@@ -17,14 +17,14 @@ final class AddVehicle
         string $name,
         Facility $initialPosition
     ) {
-        $this->vehicleFleetId = $vehicleFleetId;
+        $this->vehicleFleetId = $vehicleFleetId->toString();
         $this->name = $name;
-        $this->initialPosition = $initialPosition;
+        $this->initialPosition = $initialPosition->toString();
     }
 
     public function vehicleFleetId(): VehicleFleetId
     {
-        return $this->vehicleFleetId;
+        return VehicleFleetId::fromString($this->vehicleFleetId);
     }
 
     public function name(): string
@@ -34,6 +34,6 @@ final class AddVehicle
 
     public function initialPosition(): Facility
     {
-        return $this->initialPosition;
+        return Facility::named($this->initialPosition);
     }
 }

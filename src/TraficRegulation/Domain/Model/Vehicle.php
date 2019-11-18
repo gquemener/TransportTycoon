@@ -21,6 +21,11 @@ final class Vehicle
         return new self($name, $position);
     }
 
+    public static function create(string $name, Position $position): self
+    {
+        return new self($name, $position);
+    }
+
     public function name(): string
     {
         return $this->name;

@@ -26,8 +26,10 @@ final class PlanVehicleRoute
 
     public function onVehicleHasBeenAdded(VehicleHasBeenAdded $event): void
     {
-        $this->vehicleToOrigins[$event->vehicleFleetId()->toString()][$event->vehicleName()] =
-            $event->vehiclePosition();
+        $vehicleFleetId = $event->vehicleFleetId();
+        $vehicle = $event->vehicle();
+        $this->vehicleToOrigins[$vehicleFleetId->toString()][$vehicle->name()] =
+            $vehicle->position();
     }
 
     public function onCargoWasRegistered(CargoWasRegistered $event): void

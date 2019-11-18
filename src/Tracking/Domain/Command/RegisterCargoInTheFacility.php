@@ -6,7 +6,7 @@ namespace App\Tracking\Domain\Command;
 use App\Tracking\Domain\Model\CargoId;
 use App\Tracking\Domain\Model\Facility;
 
-final class RegisterCargoInTheFacility
+final class RegisterCargoInTheFacility implements \JsonSerializable
 {
     private $cargoId;
     private $origin;
@@ -17,23 +17,32 @@ final class RegisterCargoInTheFacility
         Facility $origin,
         Facility $destination
     ) {
-        $this->cargoId = $cargoId;
-        $this->origin = $origin;
-        $this->destination = $destination;
+        $this->cargoId = $cargoId->toString();
+        $this->origin = $origin->toString();
+        $this->destination = $destination->toString();
     }
 
     public function cargoId(): CargoId
     {
-        return $this->cargoId;
+        return CargoId::fromString($this->cargoId);
     }
 
     public function origin(): Facility
     {
-        return $this->origin;
+        return Facility::named($this->origin);
     }
 
     public function destination(): Facility
     {
-        return $this->destination;
+        return Facility::named($this->destination);
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'cargoId' => $this->cargoId,
+            'origin' => $this->origin,
+            'destination' => $this->destination,
+        ];
     }
 }

@@ -3,22 +3,22 @@ declare(strict_types=1);
 
 namespace App\Tracking\Domain\ProcessManager;
 
-use App\Tracking\Domain\Model\Facility;
 use App\ServiceBus\CommandBus;
-use App\Tracking\Domain\Model\CargoRepository;
-use App\Tracking\Domain\Command\LoadPendingCargo;
-use App\TraficRegulation\Domain\Event\VehicleHasBeenAdded;
-use App\Tracking\Domain\Model\Vehicle;
-use App\TraficRegulation\Domain\Event\VehicleHasEnteredFacility;
-use App\Tracking\Domain\Model\VehicleIsAlreadyLoaded;
-use App\Tracking\Domain\Command\UnloadCargo;
-use App\Tracking\Domain\Event\CargoWasUnloaded;
-use App\Tracking\Domain\Command\LoadVehicle;
-use App\Tracking\Domain\Event\CargoWasLoaded;
 use App\Tracking\Domain\Command\LoadCargo;
+use App\Tracking\Domain\Command\LoadPendingCargo;
+use App\Tracking\Domain\Command\LoadVehicle;
+use App\Tracking\Domain\Command\UnloadCargo;
+use App\Tracking\Domain\Event\CargoWasLoaded;
 use App\Tracking\Domain\Event\CargoWasRegistered;
-use App\TraficRegulation\Domain\Event\VehicleRouteHasBeenSet;
+use App\Tracking\Domain\Event\CargoWasUnloaded;
 use App\Tracking\Domain\Model\CargoId;
+use App\Tracking\Domain\Model\CargoRepository;
+use App\Tracking\Domain\Model\Facility;
+use App\Tracking\Domain\Model\Vehicle;
+use App\Tracking\Domain\Model\VehicleIsAlreadyLoaded;
+use App\TraficRegulation\Domain\Event\VehicleHasBeenAdded;
+use App\TraficRegulation\Domain\Event\VehicleHasEnteredFacility;
+use App\TraficRegulation\Domain\Event\VehicleRouteHasBeenSet;
 
 final class CargoHandler
 {
@@ -42,8 +42,14 @@ final class CargoHandler
 
     public function onVehicleHasBeenAdded(VehicleHasBeenAdded $event): void
     {
-        $vehicle = Vehicle::create($event->vehicleFleetId(), $event->vehicleName());
-        $position = Facility::named($event->vehiclePosition()->toString());
+        $vehicle = Vehicle::create(
+            $event->vehicleFleetId(),
+            $event->vehicle()->name()
+        );
+        /** @var Facility */
+        $facility = $event->vehicle()->position();
+        $position = Facility::named($facility->toString());
+
         $this->facilityVehicles[$position->toString()][] = $vehicle;
 
         $this->dispatchLoadCargoCommand($vehicle, $position);
@@ -51,8 +57,13 @@ final class CargoHandler
 
     public function onVehicleHasEnteredFacility(VehicleHasEnteredFacility $event): void
     {
-        $vehicle = Vehicle::create($event->vehicleFleetId(), $event->vehicleName());
-        $position = Facility::named($event->vehiclePosition()->toString());
+        $vehicle = Vehicle::create(
+            $event->vehicleFleetId(),
+            $event->vehicle()->name()
+        );
+        /** @var Facility */
+        $facility = $event->vehicle()->position();
+        $position = Facility::named($facility->toString());
         $this->facilityVehicles[$position->toString()][] = $vehicle;
 
         if (isset($this->loadedVehicles[$vehicle->vehicleFleetId()->toString()][$vehicle->name()])) {
@@ -69,7 +80,11 @@ final class CargoHandler
 
     public function onVehicleRouteHasBeenSet(VehicleRouteHasBeenSet $event): void
     {
-        $leavingVehicle = Vehicle::create($event->vehicleFleetId(), $event->vehicleName());
+        $leavingVehicle = Vehicle::create(
+            $event->vehicleFleetId(),
+            $event->vehicle()->name()
+        );
+
         foreach ($this->facilityVehicles as $facility => $vehicles) {
             foreach ($vehicles as $key => $vehicle) {
                 if ($vehicle->equals($leavingVehicle)) {

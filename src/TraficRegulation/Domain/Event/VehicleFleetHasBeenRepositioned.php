@@ -11,13 +11,13 @@ final class VehicleFleetHasBeenRepositioned implements \JsonSerializable
 
     public function __construct(VehicleFleetId $vehicleFleetId)
     {
-        $this->vehicleFleetId = $vehicleFleetId;
+        $this->vehicleFleetId = $vehicleFleetId->toString();
     }
 
     public function jsonSerialize(): array
     {
         return [
-            'vehicleFleetId' => $this->vehicleFleetId->toString(),
+            'vehicleFleetId' => $this->vehicleFleetId,
         ];
     }
 }

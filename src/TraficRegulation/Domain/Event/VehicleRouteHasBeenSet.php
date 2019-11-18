@@ -6,41 +6,52 @@ namespace App\TraficRegulation\Domain\Event;
 use App\TraficRegulation\Domain\Model\VehicleFleetId;
 use App\TraficRegulation\Domain\Model\Vehicle;
 use App\TraficRegulation\Domain\Model\Facility;
+use App\TraficRegulation\Domain\Model\Route;
 
 final class VehicleRouteHasBeenSet implements \JsonSerializable
 {
     private $vehicleFleetId;
-    private $vehicle;
+    private $vehicleName;
+    private $vehicleDestination;
+    private $vehicleEta;
 
     public function __construct(
         VehicleFleetId $vehicleFleetId,
         Vehicle $vehicle
     ) {
-        $this->vehicleFleetId = $vehicleFleetId;
-        $this->vehicle = $vehicle;
+        $this->vehicleFleetId = $vehicleFleetId->toString();
+        $this->vehicleName = $vehicle->name();
+
+        /** @var Route */
+        $position = $vehicle->position();
+
+        $this->vehicleDestination = $position->destination()->toString();
+        $this->vehicleEta = $position->eta();
     }
 
     public function vehicleFleetId(): VehicleFleetId
     {
-        return $this->vehicleFleetId;
+        return VehicleFleetId::fromString($this->vehicleFleetId);
     }
 
-    public function vehicleName(): string
+    public function vehicle(): Vehicle
     {
-        return $this->vehicle->name();
-    }
-
-    public function vehiclePosition(): Facility
-    {
-        return $this->vehicle->position();
+        return Vehicle::create(
+            $this->vehicleName,
+            Route::to(
+                Facility::named($this->vehicleDestination),
+                $this->vehicleEta
+            )
+        );
     }
 
     public function jsonSerialize(): array
     {
         return [
             'vehicleFleetId' => $this->vehicleFleetId,
-            'vehicleName' => $this->vehicle->name(),
-            'vehiclePosition' => $this->vehicle->position()->description(),
+            'vehicleName' => $this->vehicleName,
+            'vehicleDestination' => $this->vehicleDestination,
+            'vehicleEta' => $this->vehicleEta,
         ];
     }
 }

@@ -7,17 +7,17 @@ use App\TraficRegulation\Domain\Model\VehicleFleetId;
 
 final class VehicleFleetHasBeenCreated implements \JsonSerializable
 {
-    private $id;
+    private $vehicleFleetId;
 
-    public function __construct(VehicleFleetId $id)
+    public function __construct(VehicleFleetId $vehicleFleetId)
     {
-        $this->id = $id;
+        $this->vehicleFleetId = $vehicleFleetId->toString();
     }
 
     public function jsonSerialize(): array
     {
         return [
-            'vehicleFleetId' => $this->id->toString(),
+            'vehicleFleetId' => $this->vehicleFleetId,
         ];
     }
 }

@@ -51,4 +51,9 @@ final class Route implements Position
     {
         return $this->destination;
     }
+
+    public function eta(): int
+    {
+        return $this->eta;
+    }
 }

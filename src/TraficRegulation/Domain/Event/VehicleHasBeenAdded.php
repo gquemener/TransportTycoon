@@ -10,37 +10,41 @@ use App\TraficRegulation\Domain\Model\Facility;
 final class VehicleHasBeenAdded implements \JsonSerializable
 {
     private $vehicleFleetId;
-    private $vehicle;
+    private $vehicleName;
+    private $vehiclePosition;
 
     public function __construct(
         VehicleFleetId $vehicleFleetId,
         Vehicle $vehicle
     ) {
-        $this->vehicleFleetId = $vehicleFleetId;
-        $this->vehicle = $vehicle;
+        $this->vehicleFleetId = $vehicleFleetId->toString();
+        $this->vehicleName = $vehicle->name();
+
+        /** @var Facility */
+        $position = $vehicle->position();
+
+        $this->vehiclePosition = $position->toString();
     }
 
     public function vehicleFleetId(): VehicleFleetId
     {
-        return $this->vehicleFleetId;
+        return VehicleFleetId::fromString($this->vehicleFleetId);
     }
 
-    public function vehicleName(): string
+    public function vehicle(): Vehicle
     {
-        return $this->vehicle->name();
-    }
-
-    public function vehiclePosition(): Facility
-    {
-        return $this->vehicle->position();
+        return Vehicle::register(
+            $this->vehicleName,
+            Facility::named($this->vehiclePosition)
+        );
     }
 
     public function jsonSerialize(): array
     {
         return [
-            'vehicleFleetId' => $this->vehicleFleetId->toString(),
-            'vehicleName' => $this->vehicleName(),
-            'vehiclePosition' => $this->vehiclePosition()->toString(),
+            'vehicleFleetId' => $this->vehicleFleetId,
+            'vehicleName' => $this->vehicleName,
+            'vehiclePosition' => $this->vehiclePosition,
         ];
     }
 }
