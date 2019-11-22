@@ -2,11 +2,18 @@
 
 use App\Console\LogDomainCommandToConsoleDecorator;
 use App\Console\LogDomainEventToConsoleDecorator;
+use App\Debug\Listener\LogDomainEvents;
 use App\ServiceBus\CommandBus;
 use App\ServiceBus\EventBus;
 use App\ServiceBus\SimpleEventBus;
 use App\ServiceBus\SymfonyLocatorCommandBus;
 use App\Simulation\Application\Service\StaticSimulator;
+use App\Simulation\Domain\Command\StartSimulation;
+use App\Simulation\Domain\Command\StartSimulationHandler;
+use App\Simulation\Domain\Command\WaitOneHour;
+use App\Simulation\Domain\Command\WaitOneHourHandler;
+use App\Simulation\Domain\Event\OneHourHasPassed;
+use App\Simulation\Domain\Event\SimulationHasStarted;
 use App\Simulation\Domain\Service\Simulator;
 use App\Tracking\Domain\Command\LoadCargo;
 use App\Tracking\Domain\Command\LoadCargoHandler;
@@ -30,22 +37,20 @@ use App\TraficRegulation\Domain\Command\CreateVehicleFleet;
 use App\TraficRegulation\Domain\Command\CreateVehicleFleetHandler;
 use App\TraficRegulation\Domain\Command\RepositionVehicleFleet;
 use App\TraficRegulation\Domain\Command\RepositionVehicleFleetHandler;
+use App\TraficRegulation\Domain\Event\VehicleFleetHasBeenCreated;
+use App\TraficRegulation\Domain\Event\VehicleFleetHasBeenRepositioned;
 use App\TraficRegulation\Domain\Event\VehicleHasBeenAdded;
 use App\TraficRegulation\Domain\Event\VehicleHasEnteredFacility;
+use App\TraficRegulation\Domain\Event\VehicleRouteHasBeenSet;
 use App\TraficRegulation\Domain\Event\VehicleWasRegistered;
 use App\TraficRegulation\Domain\Model\VehicleFleetRepository;
 use App\TraficRegulation\Domain\ProcessManager\DefineVehicleDestination;
 use App\TraficRegulation\Domain\ProcessManager\PlanVehicleRoute;
+use App\TraficRegulation\Domain\ProcessManager\RepositionVehicles;
 use App\TraficRegulation\Infrastructure\InMemoryVehicleFleetRepository;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
-use App\TraficRegulation\Domain\Event\VehicleRouteHasBeenSet;
-use App\Debug\Listener\LogDomainEvents;
-use App\TraficRegulation\Domain\Event\VehicleFleetHasBeenRepositioned;
-use App\Simulation\Domain\Command\StartSimulationHandler;
-use App\Simulation\Domain\Command\StartSimulation;
-use App\Simulation\Domain\Event\SimulationHasStarted;
 
 return function(ContainerConfigurator $configurator) {
     $services = $configurator->services();
@@ -83,7 +88,13 @@ return function(ContainerConfigurator $configurator) {
     $services->set(PlanVehicleRoute::class)
              ->args([ref(CommandBus::class)]);
 
+    $services->set(RepositionVehicles::class)
+             ->args([ref(CommandBus::class)]);
+
     $services->set(StartSimulationHandler::class)
+             ->args([ref(EventBus::class)]);
+
+    $services->set(WaitOneHourHandler::class)
              ->args([ref(EventBus::class)]);
 
     $services->set(Simulator::class, StaticSimulator::class)
@@ -113,6 +124,7 @@ return function(ContainerConfigurator $configurator) {
 
                  // Simulation Domain
                  StartSimulation::class => ref(StartSimulationHandler::class),
+                 WaitOneHour::class => ref(WaitOneHourHandler::class),
              ]])
              ->tag('container.service_locator');
 
@@ -153,7 +165,13 @@ return function(ContainerConfigurator $configurator) {
                  ],
                  SimulationHasStarted::class => [
                      [ ref(LogDomainEvents::class), 'onSimulationHasStarted' ],
-                 ]
+                 ],
+                 VehicleFleetHasBeenCreated::class => [
+                     [ ref(RepositionVehicles::class), 'onVehicleFleetHasBeenCreated' ],
+                 ],
+                 OneHourHasPassed::class => [
+                     [ ref(RepositionVehicles::class), 'onOneHourHasPassed' ],
+                 ],
              ]]);
 
     $services->set(LogDomainEventToConsoleDecorator::class)

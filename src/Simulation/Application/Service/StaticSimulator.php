@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Simulation\Application\Service;
 
 use App\ServiceBus\CommandBus;
+use App\Simulation\Domain\Command\StartSimulation;
+use App\Simulation\Domain\Command\WaitOneHour;
 use App\Simulation\Domain\Service\Simulator;
 use App\Tracking\Domain\Command\RegisterCargoInTheFacility;
 use App\Tracking\Domain\Event\CargoWasRegistered;
@@ -12,10 +14,8 @@ use App\Tracking\Domain\Model\CargoId;
 use App\Tracking\Domain\Model\Facility as TrackingFacility;
 use App\TraficRegulation\Domain\Command\AddVehicle;
 use App\TraficRegulation\Domain\Command\CreateVehicleFleet;
-use App\TraficRegulation\Domain\Command\RepositionVehicleFleet;
 use App\TraficRegulation\Domain\Model\Facility as TraficRegulationFacility;
 use App\TraficRegulation\Domain\Model\VehicleFleetId;
-use App\Simulation\Domain\Command\StartSimulation;
 
 final class StaticSimulator implements Simulator
 {
@@ -66,8 +66,7 @@ final class StaticSimulator implements Simulator
 
         do {
             ++$loops;
-            $this->commandBus->dispatch(new RepositionVehicleFleet($vehicleFleetId));
-
+            $this->commandBus->dispatch(new WaitOneHour());
         } while ($loops < self::MAX_LOOPS && 0 < count($this->cargoDestinations));
 
         if (0 !== count($this->cargoDestinations)) {

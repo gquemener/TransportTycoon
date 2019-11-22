@@ -81,7 +81,6 @@ final class LogDomainEvents
 
     public function onVehicleRouteHasBeenSet(VehicleRouteHasBeenSet $event): void
     {
-        xdebug_break();
         $vehicle = $event->vehicle();
         /** @var \App\TraficRegulation\Domain\Model\Route */
         $position = $vehicle->position();

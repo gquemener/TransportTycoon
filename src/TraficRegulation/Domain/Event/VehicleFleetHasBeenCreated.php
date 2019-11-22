@@ -14,6 +14,11 @@ final class VehicleFleetHasBeenCreated implements \JsonSerializable
         $this->vehicleFleetId = $vehicleFleetId->toString();
     }
 
+    public function vehicleFleetId(): VehicleFleetId
+    {
+        return VehicleFleetId::fromString($this->vehicleFleetId);
+    }
+
     public function jsonSerialize(): array
     {
         return [

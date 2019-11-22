@@ -24,8 +24,20 @@ final class CargoHandler
 {
     private $commandBus;
 
+    // onVehicleHasEnteredFacility
+    // onCargoWasLoaded
     private $loadedVehicles = [];
+
+    // onCargoWasRegistered
+    // onCargoWasUnloaded
+    // onVehicleHasBeenAdded
+    // onVehicleHasEnteredFacility
     private $facilityCargos = [];
+
+    // onVehicleHasBeenAdded
+    // onVehicleHasEnteredFacility
+    // onVehicleRouteHasBeenSet
+    // onCargoWasUnloaded
     private $facilityVehicles = [];
 
     public function __construct(CommandBus $commandBus)
@@ -94,7 +106,6 @@ final class CargoHandler
 
     public function onCargoWasLoaded(CargoWasLoaded $event): void
     {
-
         $vehicle = $event->vehicle();
 
         $this->loadedVehicles[$vehicle->vehicleFleetId()->toString()][$vehicle->name()] = $event->cargoId();

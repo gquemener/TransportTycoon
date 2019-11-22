@@ -67,7 +67,7 @@ final class StaticRouteFinder implements RouteFinder
             case Facility::named('Warehouse A'):
                 return Route::to(
                     Facility::named('Warehouse A'),
-                    4
+                    6
                 );
 
             default:
@@ -85,7 +85,7 @@ final class StaticRouteFinder implements RouteFinder
             case Facility::named('Port'):
                 return Route::to(
                     Facility::named('Port'),
-                    4
+                    6
                 );
 
             default:
