@@ -25,7 +25,7 @@ final class LogDomainCommandToConsoleDecorator implements CommandBus
     {
         if (null !== $this->output && $this->output->isVeryVerbose()) {
             $this->output->writeln(sprintf(
-                'Dispatching <info>command</info> <comment>%s</comment> %s',
+                'Dispatching <fg=magenta>command</> <comment>%s</comment> %s',
                 get_class($command),
                 json_encode($command)
             ));

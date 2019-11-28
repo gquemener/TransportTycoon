@@ -4,10 +4,12 @@ declare(strict_types=1);
 namespace App\ServiceBus;
 
 use Psr\Container\ContainerInterface;
+use App\ServiceBus\EventBus;
 
 final class SymfonyLocatorCommandBus implements CommandBus
 {
     private $locator;
+    private $eventBus;
 
     public function __construct(ContainerInterface $locator)
     {
@@ -21,7 +23,6 @@ final class SymfonyLocatorCommandBus implements CommandBus
             throw new \InvalidArgumentException(sprintf('No handler found for command "%s"', get_class($command)));
         }
         $handler = $this->locator->get($name);
-
         $handler->handle($command);
     }
 }

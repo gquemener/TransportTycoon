@@ -5,4 +5,4 @@ require __DIR__.'/../vendor/autoload.php';
 
 use App\Console\Application;
 
-(new Application('1.0.0'))->run();
+(new Application('2.0.0'))->run();

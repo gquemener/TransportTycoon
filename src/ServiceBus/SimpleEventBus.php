@@ -16,8 +16,10 @@ final class SimpleEventBus implements EventBus
     {
         $name = get_class($event);
         if (isset($this->listeners[$name])) {
+            $parts = explode('\\', $name);
+            $methodName = sprintf('on%s', array_pop($parts));
             foreach ($this->listeners[$name] as $listener) {
-                $listener($event);
+                call_user_func_array([$listener, $methodName], [$event]);
             }
         }
     }

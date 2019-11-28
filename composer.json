@@ -19,10 +19,10 @@
     "require": {
         "ramsey/uuid": "^3.8",
         "symfony/console": "^4.4",
-        "symfony/dependency-injection": "^4.4"
+        "symfony/dependency-injection": "^4.4",
+        "myclabs/php-enum": "^1.7"
     },
     "require-dev": {
-        "phpspec/phpspec": "^6.0",
         "behat/behat": "^3.5"
     }
 }
