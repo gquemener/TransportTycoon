@@ -5,6 +5,8 @@ namespace App\TransportTycoon\Domain\Model\Operation;
 
 use App\TransportTycoon\Domain\Model\World;
 use App\TransportTycoon\Domain\Event\VehicleWasLoaded;
+use App\TransportTycoon\Domain\Event\VehicleLoadingHasStarted;
+use App\TransportTycoon\Domain\Event\VehicleWasUnloaded;
 
 final class LoadCargoInAvailableVehicle
 {
@@ -13,8 +15,20 @@ final class LoadCargoInAvailableVehicle
         $cargos = $world->cargos();
         $vehicles = $world->vehicles();
 
-        xdebug_break();
         foreach ($vehicles as $vehicle) {
+            if ($vehicle->isAtLoadingArea()) {
+                $vehicle->processLoading();
+
+                if ($vehicle->hasLoad()) {
+                    yield new VehicleWasLoaded($world, [
+                        'vehicle' => $vehicle,
+                        'cargos' => $vehicle->cargoLoad(),
+                    ]);
+                }
+
+                continue;
+            }
+
             if (!$vehicle->isInOriginalPosition()) {
                 continue;
             }
@@ -28,9 +42,20 @@ final class LoadCargoInAvailableVehicle
                 }
             }
             if (0 !== count($load)) {
-                $vehicle->load($load);
+                if ($vehicle->hasImmediateHandlingCapability()) {
+                    $vehicle->load($load);
 
-                yield new VehicleWasLoaded($world, [
+                    yield new VehicleWasLoaded($world, [
+                        'vehicle' => $vehicle,
+                        'cargos' => $load,
+                    ]);
+
+                    continue;
+                }
+
+                $vehicle->startLoading($load);
+
+                yield new VehicleLoadingHasStarted($world, [
                     'vehicle' => $vehicle,
                     'cargos' => $load,
                 ]);

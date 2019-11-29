@@ -8,6 +8,8 @@ use App\TransportTycoon\Domain\Event\VehicleHasStarted;
 use App\TransportTycoon\Domain\Event\OneHourHasPassed;
 use App\TransportTycoon\Domain\Model\Operation\MoveVehicles;
 use App\TransportTycoon\Domain\Event\VehicleWasUnloaded;
+use App\TransportTycoon\Domain\Model\Operation\UnloadCargos;
+use App\TransportTycoon\Domain\Event\VehicleUnloadingHasStarted;
 
 final class World
 {
@@ -70,11 +72,21 @@ final class World
         ]);
     }
 
-    public function unloadVehicle(Vehicle $vehicle)
+    public function unloadVehicle(Vehicle $vehicle): \Generator
     {
-        $vehicle->unload();
+        if ($vehicle->hasImmediateHandlingCapability()) {
+            $vehicle->unload();
 
-        yield new VehicleWasUnloaded($this, [
+            yield new VehicleWasUnloaded($this, [
+                'vehicle' => $vehicle,
+            ]);
+
+            return;
+        }
+
+        $vehicle->startUnloading();
+
+        yield new VehicleUnloadingHasStarted($this, [
             'vehicle' => $vehicle,
         ]);
     }

@@ -46,6 +46,11 @@ final class Vehicle
         }
     }
 
+    public function hasImmediateHandlingCapability(): bool
+    {
+        return 0 === $this->handlingHours;
+    }
+
     public function load(array $cargos): void
     {
         $this->cargos = $cargos;
@@ -53,12 +58,21 @@ final class Vehicle
 
     public function unload(): void
     {
+        if (!$this->hasLoad()) {
+            throw new \RuntimeException('Vehicle is empty');
+        }
+
         $this->cargos = [];
     }
 
     public function hasLoad(): bool
     {
         return !empty($this->cargos);
+    }
+
+    public function cargoLoad(): array
+    {
+        return $this->cargos;
     }
 
     public function moveForward(): void
@@ -98,6 +112,60 @@ final class Vehicle
     public function isInOriginalPosition(): bool
     {
         return $this->position->equals($this->origin);
+    }
+
+    public function startLoading(array $cargos): void
+    {
+        $this->moveTo(
+            LoadingArea::atFacility($this->position, $this->handlingHours, $cargos)
+        );
+    }
+
+    public function startUnloading(): void
+    {
+        if (!$this->hasLoad()) {
+            throw new \RuntimeException('Vehicle is empty');
+        }
+
+        $this->moveTo(
+            UnloadingArea::atFacility($this->position, $this->handlingHours, $this->cargos)
+        );
+    }
+
+    public function isAtLoadingArea(): bool
+    {
+        return $this->position instanceof LoadingArea;
+    }
+
+    public function isAtUnloadingArea(): bool
+    {
+        return $this->position instanceof UnloadingArea;
+    }
+
+    public function processLoading(): void
+    {
+        if (!$this->isAtLoadingArea()) {
+            throw new \RuntimeException('Vehicle is not at loading area');
+        }
+        $this->position->process();
+
+        if ($this->position->isFinished()) {
+            $this->load($this->position->cargos());
+            $this->moveTo($this->position->facility());
+        }
+    }
+
+    public function processUnloading(): void
+    {
+        if (!$this->isAtUnloadingArea()) {
+            throw new \RuntimeException('Vehicle is not at unloading area');
+        }
+        $this->position->process();
+
+        if ($this->position->isFinished()) {
+            $this->moveTo($this->position->facility());
+            $this->unload();
+        }
     }
 
     public function originName(): FacilityName
