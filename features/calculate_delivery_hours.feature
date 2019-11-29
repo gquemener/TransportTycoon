@@ -8,11 +8,10 @@ Feature: Calculate delivery hours
         Then I should read the result <result>
 
         Examples:
-            | cargos       | result |
-            | A            | 5      |
-            | AB           | 5      |
-            | BB           | 5      |
-            | ABB          | 7      |
-            | AA           | 13     |
-            | AABABBAB     | 29     |
-            | ABBBABAAABBB | 41     |
+            | cargos | result |
+            | A      | 9      |
+            | AA     | 9      |
+            | AAA    | 23     |
+            | AB     | 9      |
+            | BB     | 5      |
+            | ABB    | 9      |
