@@ -5,11 +5,16 @@ namespace App\TransportTycoon\Domain\Model;
 
 final class EnRoute implements Position
 {
+    private $origin;
     private $destination;
     private $eta;
 
-    private function __construct(Facility $destination, int $eta)
-    {
+    private function __construct(
+        Facility $origin,
+        Facility $destination,
+        int $eta
+    ) {
+        $this->origin = $origin;
         $this->destination = $destination;
         $this->eta = $eta;
     }
@@ -17,6 +22,7 @@ final class EnRoute implements Position
     public static function fromRoute(Route $route): self
     {
         return new self(
+            $route->origin(),
             $route->destination(),
             $route->eta()
         );
@@ -36,6 +42,11 @@ final class EnRoute implements Position
         return 0 === $this->eta;
     }
 
+    public function origin(): Facility
+    {
+        return $this->origin;
+    }
+
     public function destination(): Facility
     {
         return $this->destination;
@@ -52,8 +63,9 @@ final class EnRoute implements Position
 
     public function equals(Position $position): bool
     {
-        return $position instanceof $this
-            && $position->facility->equals($this->facility)
+        return $position instanceof self
+            && $position->origin->equals($this->origin)
+            && $position->destination->equals($this->destination)
             && $position->eta === $this->eta;
     }
 }

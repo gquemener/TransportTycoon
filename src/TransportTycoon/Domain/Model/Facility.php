@@ -21,7 +21,7 @@ final class Facility implements Position
 
     public function connect(Facility $facility, int $eta): void
     {
-        $route = Route::to($facility, $eta);
+        $route = Route::between($this, $facility, $eta);
         if (false === array_search($route, $this->routes)) {
             $this->routes[] = $route;
 
@@ -74,7 +74,7 @@ final class Facility implements Position
 
     public function equals(Position $position): bool
     {
-        return $position instanceof $this
+        return $position instanceof self
             && $position->name->equals($this->name);
     }
 }

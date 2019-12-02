@@ -58,7 +58,7 @@ final class LoadingArea implements Position
 
     public function equals(Position $position): bool
     {
-        return $position instanceof $this
+        return $position instanceof self
             && $position->facility->equals($this->facility)
             && $position->eta === $this->eta;
     }

@@ -78,7 +78,7 @@ final class Vehicle
     public function moveForward(): void
     {
         if (!$this->isEnRoute()) {
-            throw new \LogicException('Vehicle is parked');
+            throw new \LogicException('Vehicle is not en route');
         }
 
         $this->position->moveForward();
@@ -87,7 +87,7 @@ final class Vehicle
     public function hasReachedDestination(): bool
     {
         if (!$this->isEnRoute()) {
-            throw new \LogicException('Vehicle is parked');
+            throw new \LogicException('Vehicle is not en route');
         }
 
         return $this->position->hasReachedDestination();
@@ -96,7 +96,7 @@ final class Vehicle
     public function enterDestination(): void
     {
         if (!$this->isEnRoute()) {
-            throw new \LogicException('Vehicle is parked');
+            throw new \LogicException('Vehicle is not en route');
         }
 
         $this->moveTo(
@@ -109,6 +109,11 @@ final class Vehicle
         return $this->position instanceof EnRoute;
     }
 
+    public function isInFacility(): bool
+    {
+        return $this->position instanceof Facility;
+    }
+
     public function isInOriginalPosition(): bool
     {
         return $this->position->equals($this->origin);
@@ -116,6 +121,10 @@ final class Vehicle
 
     public function startLoading(array $cargos): void
     {
+        if (!$this->isInFacility()) {
+            throw new \RuntimeException('Vehicle is not in facility');
+        }
+
         $this->moveTo(
             LoadingArea::atFacility($this->position, $this->handlingHours, $cargos)
         );
@@ -123,6 +132,10 @@ final class Vehicle
 
     public function startUnloading(): void
     {
+        if (!$this->isInFacility()) {
+            throw new \RuntimeException('Vehicle is not in facility');
+        }
+
         if (!$this->hasLoad()) {
             throw new \RuntimeException('Vehicle is empty');
         }
@@ -166,6 +179,11 @@ final class Vehicle
             $this->moveTo($this->position->facility());
             $this->unload();
         }
+    }
+
+    public function name(): string
+    {
+        return $this->name;
     }
 
     public function originName(): FacilityName

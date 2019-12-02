@@ -33,4 +33,9 @@ final class LogDomainEventToConsoleDecorator implements EventBus
 
         $this->decorated->dispatch($event);
     }
+
+    public function on(string $eventName, object $listener, int $priority = -1): void
+    {
+        $this->decorated->on($eventName, $listener, $priority);
+    }
 }

@@ -5,6 +5,12 @@ namespace App\TransportTycoon\Domain\Model;
 
 use MyCLabs\Enum\Enum;
 
+/**
+ * @method static self FACTORY()
+ * @method static self PORT()
+ * @method static self WAREHOUSE_A()
+ * @method static self WAREHOUSE_B()
+ */
 final class FacilityName extends Enum
 {
     private const FACTORY = 'Factory';

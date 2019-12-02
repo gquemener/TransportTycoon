@@ -6,11 +6,12 @@ namespace App\TransportTycoon\Domain\Model;
 final class Cargo
 {
     private $position;
+
     private $destination;
 
-    private static $count = 0;
-
     private $id;
+
+    private static $count = 0;
 
     public static function toWarehouseA(): self
     {
@@ -27,6 +28,11 @@ final class Cargo
     ) {
         $this->id = ++self::$count;
         $this->destination = $destination;
+    }
+
+    public function id(): int
+    {
+        return $this->id;
     }
 
     public function position(): ?Position

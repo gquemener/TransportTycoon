@@ -23,6 +23,7 @@
         "myclabs/php-enum": "^1.7"
     },
     "require-dev": {
-        "behat/behat": "^3.5"
+        "behat/behat": "^3.5",
+        "sebastian/diff": "^3.0"
     }
 }

@@ -14,11 +14,8 @@ use App\TransportTycoon\Domain\Event\VehicleUnloadingHasStarted;
 final class World
 {
     private $root;
-
-    private $cargos;
-
     private $vehicles;
-
+    private $cargos;
     private $age;
 
     private function __construct(Facility $root, array $vehicles, array $cargos)
@@ -50,9 +47,6 @@ final class World
 
     public function addOneHour(): \Generator
     {
-        //foreach ((new UnloadCargoInAvailableVehicle())->execute($this->root) as $event) {
-        //    yield new $event[0]($this, $event[1]);
-        //}
         yield from (new MoveVehicles())->execute($this);
 
         yield from (new LoadCargoInAvailableVehicle())->execute($this);

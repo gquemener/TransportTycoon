@@ -18,6 +18,12 @@ use App\TransportTycoon\Domain\Model\Vehicle;
 use App\TransportTycoon\Domain\Model\Facility;
 use App\TransportTycoon\Domain\Model\Simulation;
 use App\TransportTycoon\Domain\Model\Cargo;
+use App\Tracer\Domain\Model\JournalRepository;
+use App\ServiceBus\EventBus;
+use App\Tracer\Domain\ProcessManager\AppendEntriesToJournal;
+use App\TransportTycoon\Domain\Event\VehicleHasStarted;
+use Symfony\Component\DependencyInjection\Reference;
+use App\TransportTycoon\Domain\Event\VehicleHasParkedInFacility;
 
 final class ComputeTimeToDeliver extends Command
 {
@@ -36,7 +42,7 @@ final class ComputeTimeToDeliver extends Command
             ->setName('time-to-deliver')
             ->setDescription('Calculate the time required to deliver a list of cargos')
             ->addArgument('cargos', InputArgument::REQUIRED, 'The list of cargos (ex: AAABBBABBAAA)')
-            ->addOption('debug', null, InputOption::VALUE_REQUIRED, 'The directory in which to dump the events log')
+            ->addOption('dump-log', null, InputOption::VALUE_REQUIRED, 'The directory in which to dump the events log')
         ;
     }
 
@@ -51,6 +57,15 @@ final class ComputeTimeToDeliver extends Command
         $commandLogger->setOutput($output);
 
         $cargos = $input->getArgument('cargos');
+
+        if (null !== $dumpLogDir = $input->getOption('dump-log')) {
+            $this->container->get(JournalRepository::class)->setBaseDir($dumpLogDir);
+            $eventBus = $this->container->get(EventBus::class);
+            $listener = $this->container->get(AppendEntriesToJournal::class);
+            $eventBus->on(VehicleHasStarted::class, $listener, 128);
+            $eventBus->on(VehicleHasParkedInFacility::class, $listener, 128);
+        }
+
         $hours = $simulation->timeToDeliver(
             ...array_map(
                 function(string $cargo): Cargo{
